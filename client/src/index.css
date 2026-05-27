@@ -1,0 +1,45 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+* {
+    font-family: "Outfit", sans-serif;
+}
+
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+@theme {
+    --color-primary: #111827;
+}
+
+@layer base {
+  body {
+    @apply transition-colors duration-300;
+  }
+}
+
+body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark {
+    @apply bg-gray-900 text-white;
+}
+
+.reset-tw * {
+    all: revert !important;
+}
+
+.reset-tw strong {
+    font-weight: 600 !important;
+}

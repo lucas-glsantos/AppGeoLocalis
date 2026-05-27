@@ -1,0 +1,54 @@
+import { lazy, Suspense, memo } from "react";
+import { Route, Routes, Navigate, Outlet } from "react-router-dom";
+import { useApp } from "./controllers/AppContext";
+import { Loader2 } from "lucide-react";
+
+// Rotas públicas 
+const Home = lazy(() => import("./pages/Home"));
+const Post = lazy(() => import("./pages/Post"));
+const Login = lazy(() => import("./pages/Login"));
+
+// Rotas do autor
+const Layout = lazy(() => import("./pages/dashboard/Layout"));
+const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
+const AddPost = lazy(() => import("./pages/dashboard/painel/UserAddPost"));
+const ListPost = lazy(() => import("./pages/dashboard/painel/UserListPost"));
+const Comments = lazy(() => import("./pages/dashboard/painel/Comments"));
+
+
+const ProtectedRoute = memo(() => {
+    const { isAuthenticated, isLoading } = useApp();
+    if (isLoading) return null;
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+});
+
+const App = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 transition-colors duration-300">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-300" />
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    Carregando...
+                </span>
+            </div>}>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/post/:id" element={<Post />} />
+                
+                <Route element={<ProtectedRoute />}>
+                    <Route path="/dashboard" element={<Layout />}>
+                        <Route index element={<Dashboard />} />
+                        <Route path="add-post" element={<AddPost />} />
+                        <Route path="list-post" element={<ListPost />} />
+                        <Route path="list-comment" element={<Comments />} />
+                    </Route>
+                </Route>
+                
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </Suspense>
+    );
+};
+
+export default App;

@@ -1,0 +1,228 @@
+import { useState, useMemo } from "react";
+import { post_categories } from "../../../assets/assets";
+import ReactQuill from "react-quill-new";
+import { useApp } from "../../../controllers/AppContext";
+import toast from "react-hot-toast";
+import { Upload, FileText, Tag, Send, Loader2 } from "lucide-react";
+
+import "react-quill-new/dist/quill.snow.css";
+
+const QUILL_MODULES = {
+    toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["blockquote", "code-block"],
+        ["link", "image"],
+        ["clean"],
+    ],
+};
+
+const UserAddPost = () => {
+    const { api, fetchPosts } = useApp();
+    const [isAdding, setIsAdding] = useState(false);
+
+    const [image, setImage] = useState(false);
+    const [title, setTitle] = useState("");
+    const [subTitle, setSubTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [category, setCategory] = useState("Tudo");
+    const [isPublished, setIsPublished] = useState(false);
+
+    const modules = useMemo(() => QUILL_MODULES, []);
+
+    const resetForm = () => {
+        setImage(false);
+        setTitle("");
+        setSubTitle("");
+        setDescription("");
+        setCategory("Tudo");
+        setIsPublished(false);
+    };
+
+    const onSubmitHandler = async (e) => {
+        try {
+            e.preventDefault();
+            if (!title.trim()) {
+                toast.error("O título é obrigatório");
+                return;
+            }
+            if (!description.replace(/<[^>]*>/g, "").trim()) {
+                toast.error("A descrição não pode estar vazia");
+                return;
+            }
+
+            if (!image) {
+                toast.error("Escolha uma imagem para a Publicação");
+                return;
+            }
+
+            setIsAdding(true);
+
+            const post = {
+                title: title.trim(),
+                subTitle: subTitle.trim(),
+                description,
+                category,
+                isPublished,
+            };
+
+            const formData = new FormData();
+            formData.append("post", JSON.stringify(post));
+            if (image) formData.append("image", image);
+
+            const { data } = await api.post("/api/post/add", formData);
+
+            if (data.success) {
+                toast.success(data.message);
+                resetForm();
+                await fetchPosts();
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || error.message);
+        } finally {
+            setIsAdding(false);
+        }
+    };
+
+    return (
+        <form onSubmit={onSubmitHandler} className="flex-1 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 min-h-full">
+            <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-10">
+                <div className="bg-white dark:bg-gray-800 w-full p-4 sm:p-6 lg:p-8 shadow-lg rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center gap-2 mb-6">
+                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                            Criar novo Post
+                        </h2>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Imagem de Capa
+                            </label>
+                            <label htmlFor="image" className="block cursor-pointer">
+                                {image ? (
+                                    <div className="relative group">
+                                        <img 
+                                            src={URL.createObjectURL(image)} 
+                                            alt="Preview" 
+                                            className="w-full h-40 sm:h-56 object-cover rounded-xl" 
+                                        />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                                            <span className="text-white text-sm font-medium">Clique para alterar</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="w-full h-40 sm:h-56 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        <Upload className="w-10 h-10 text-gray-400" />
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">Clique para fazer upload</span>
+                                    </div>
+                                )}
+                                <input onChange={(e) => setImage(e.target.files[0])} type="file" id="image" accept="image/*" />
+                            </label>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Título
+                            </label>
+                            <input 
+                                type="text" 
+                                placeholder="Digite o título do post" 
+                                required 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all" 
+                                onChange={(e) => setTitle(e.target.value)} 
+                                value={title} 
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Subtítulo
+                            </label>
+                            <input 
+                                type="text" 
+                                placeholder="Digite o subtítulo (opcional)" 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all" 
+                                onChange={(e) => setSubTitle(e.target.value)} 
+                                value={subTitle} 
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Descrição
+                            </label>
+                            <div className="h-64 sm:h-80 pb-16 sm:pb-10 relative [&_.ql-editor]:min-h-[200px] [&_.ql-container]:text-base">
+                                <ReactQuill
+                                    theme="snow"
+                                    value={description}
+                                    onChange={setDescription}
+                                    modules={modules}
+                                    placeholder="Escreva o conteúdo do post..."
+                                    className="h-full"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                <Tag className="w-4 h-4" />
+                                Categoria
+                            </label>
+                            <select 
+                                onChange={(e) => setCategory(e.target.value)} 
+                                name="category" 
+                                value={category} 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all cursor-pointer"
+                            >
+                                <option value="" disabled>Selecionar categoria</option>
+                                {post_categories.filter(c => c !== "All").map((item, index) => (
+                                    <option key={index} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                            <input 
+                                type="checkbox" 
+                                checked={isPublished} 
+                                id="publish" 
+                                className="w-5 h-5 rounded cursor-pointer accent-blue-600" 
+                                onChange={(e) => setIsPublished(e.target.checked)} 
+                            />
+                            <label htmlFor="publish" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                                Publicar agora
+                            </label>
+                        </div>
+
+                        <button 
+                            disabled={isAdding} 
+                            type="submit" 
+                            className="w-full sm:w-auto px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl cursor-pointer font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {isAdding ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Publicando...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="w-5 h-5" />
+                                    Publicar
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    );
+};
+
+export default UserAddPost;
