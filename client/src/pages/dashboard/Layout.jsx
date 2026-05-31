@@ -3,8 +3,9 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import { useApp } from "../../controllers/AppContext";
 import { useTheme } from "../../controllers/ThemeContext";
-import { Sun, Moon, ArrowLeft } from "lucide-react";
+import { Sun, Moon, House } from "lucide-react";
 import { UserButton } from "@clerk/clerk-react";
+import { useState } from "react";
 
 const Layout = () => {
     const { api } = useApp();
@@ -36,7 +37,7 @@ const Layout = () => {
                                 className="flex items-center gap-2 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition min-h-[44px]"
                                 aria-label="Voltar para home"
                             >
-                                <ArrowLeft className="w-4 h-4" />
+                                <House className="w-4 h-4" />
                                 <span className="hidden sm:inline">Voltar</span>
                             </button>
                             <UserButton />

@@ -16,12 +16,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
 });
 
-const GEOLOCATION_OPTIONS = {
-  enableHighAccuracy: true,
-  timeout: 8000, // 8 seg
-  maximumAge: 60000, // 1 min
-};
-
 const MapController = ({ center }) => {
     const map = useMap();
     useEffect(() => {
@@ -43,6 +37,9 @@ const SourceMap = () => {
 
     useEffect(() => {
         setIsMobile(window.innerWidth < 768);
+        if (!navigator.geolocation) {
+            handleAllowLocation();
+        }
     }, []);
 
     // Obter localização pelo ip
@@ -57,69 +54,38 @@ const SourceMap = () => {
         return null;
     }, [api]);
 
-    // Obter localização browser GPS
-    const getLocationBrowser = useCallback(() => {
-        return new Promise((resolve) => {
-            if (!navigator.geolocation) return resolve(null);
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve({
-                        center: [position.coords.latitude, position.coords.longitude],
-                    });
-                },
-                () => resolve(null),
-                GEOLOCATION_OPTIONS
-            );
-        });
-    }, []);
-
-    // Obter localização reversa
-    const reverseGeocode = useCallback(async (lat, lon) => {
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
-
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`, { headers: { "User-Agent": "GeoLocalisApp/1.0" }, signal: controller.signal }
-            );
-
-            clearTimeout(timeout);
-            if (!res.ok) return null;
-
-            const data = await res.json();
-            return {
-                city: data.address?.city || data.address?.town || data.address?.village || data.address?.municipality, state: data.address?.state,
-            };
-        } catch {
-            return null;
-        }
-    }, []);
-
     // Obter localização central da cidade
-    const getCityCenter = useCallback(async (city, state) => {
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
+    const getCityCenter = useCallback(async (city, state, retries = 2) => {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 8000);
 
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/search?q=${city},${state},brasil&format=json&limit=1`, { headers: { "User-Agent": "GeoLocalisApp/1.0" }, signal: controller.signal }
-            );
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${city},${state},brasil&format=json&limit=1`, 
+                    { 
+                        headers: { "User-Agent": "GeoLocalisApp/1.0" }, 
+                        signal: controller.signal 
+                    }
+                );
 
-            clearTimeout(timeout);
-            if (!res.ok) return null;
+                clearTimeout(timeout);
+                if (!res.ok) continue;
 
-            const data = await res.json();
+                const data = await res.json();
         
-            if (data.lenght === 0) return null;
+                if (!data || data.length === 0) return null;
                 
-            return {
-                center: [parseFloat(data[0].lat), parseFloat(data[0].lon)],
-                displayName: data[0].display_name,
-            };
-        } catch {
-            return null;
+                return {
+                    center: [parseFloat(data[0].lat), parseFloat(data[0].lon)],
+                    displayName: data[0].display_name,
+                };
+            } catch {
+                if (attempt === retries) return null;
+                await new Promise(r => setTimeout(r, 1000));
+            }
         }
+        return null;
     }, []);
 
     // Botão Tentar Localização ip
@@ -128,20 +94,20 @@ const SourceMap = () => {
         setError(null);
 
         try {
+            // 1 Tentativa IP Nominatim
             const ipInfo = await getLocationByIp();
-
             if (ipInfo) {
                 // Usa o nome da cidade para buscar o centro geográfico
                 const cityCenter = await getCityCenter(ipInfo.city, ipInfo.state);
-
                 if (cityCenter) {
                     setCenter(cityCenter.center);
                     setUserRegion({ city: ipInfo.city, state: ipInfo.state });
+                    return; // early return
                 } else {
-                    setError("Não foi possível encontrar o centro da sua cidade.");
+                    setError("Não foi possível determinar sua localização. Tente novamente");
                 }
             } else {
-                setError("Não foi possível determinar sua localização.");
+                setError("Não possível determinar sua localização pelo IP. Tente novamente");
             }
         } catch {
             setError("Erro ao obter localização. Tente novamente.");
@@ -149,32 +115,6 @@ const SourceMap = () => {
             setLoadingLocation(false);
         }
     }, [getLocationByIp, getCityCenter]);
-
-    // Botão Tentar Localização GPS + Reversa
-    const handleRetry = useCallback(async () => {
-        setLoadingLocation(true);
-        setError(null);
-
-        try {
-            const browserResult = await getLocationBrowser();
-
-            if (browserResult) {
-                setCenter(browserResult.center);
-                const region = await reverseGeocode(
-                    browserResult.center[0],
-                    browserResult.center[1]
-                );
-                setUserRegion(region);
-            } else {
-                setError("Não foi possível determinar sua localização.");
-                console.error(error)
-            }
-        } catch {
-            setError("Erro ao obter localização. Tente novamente.")
-        } finally {
-            setLoadingLocation(false);
-        }
-    }, [getLocationBrowser, reverseGeocode]);
 
 
     // Estado de carregamento inicial
@@ -196,7 +136,9 @@ const SourceMap = () => {
     if (error) {
         return (
             <div className="h-[350px] sm:h-[450px] flex flex-col items-center justify-center text-center px-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
+                <div className="inline-flex items-center justify-center p-4 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
+                    <AlertTriangle className="w-12 h-12 text-red-500" />
+                </div>
                 <p className="text-red-500 font-semibold">
                     Localização indisponível
                 </p>
@@ -206,7 +148,7 @@ const SourceMap = () => {
                 </p>
                 
                 <button
-                    onClick={handleRetry}
+                    onClick={handleAllowLocation}
                     className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px]"
                     aria-label="Tentar novamente"
                 >
@@ -265,8 +207,8 @@ const SourceMap = () => {
     return (
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 py-16 px-4">
             <div className="text-center">
-                <div className="inline-flex items-center justify-center p-4 rounded-full bg-blue-50 dark:bg-blue-900/20 mb-4">
-                    <MapPin className="w-8 h-8 text-blue-500" />
+                <div className="inline-flex items-center justify-center p-4 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
+                    <MapPin className="w-12 h-12 text-blue-500" />
                 </div>
                 <p className="text-gray-700 dark:text-gray-200 text-lg font-semibold mb-2">
                     Descubra comércios próximos
@@ -282,7 +224,7 @@ const SourceMap = () => {
                     aria-label="Permitir localização"
                 >
                     <MapPin className="w-5 h-5" />
-                    Permitir localização
+                    Usar minha localização
 
                 </button>
             </div>

@@ -3,7 +3,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { useApp } from "../controllers/AppContext";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "../controllers/ThemeContext";
-import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn } from "lucide-react";
+import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn, TableOfContents } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -12,7 +12,6 @@ const Navbar = () => {
   const { darkMode, ThemeToggle } = useTheme();      // Retorna estado do tema (darkMode)
   const navigate = useNavigate();
 
-  const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);      // Controla menu mobile aberto/fechado
   const [showNameModal, setShowNameModal] = useState(false);        // Controla modal de nome
   const [userName, setUserName] = useState("");                     // Armazena nome digitado pelo usuário
@@ -114,11 +113,11 @@ const Navbar = () => {
         
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setSideMenuOpen((prev) => !prev)}
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
                 className="hidden md:flex p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
                 aria-label="Abrir menu lateral"
               >
-                {sideMenuOpen ? <X className="w-5 h-5 text-gray-600 dark:text-gray-300" /> : <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-red-500" /> : <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
               </button>
 
               <button
@@ -126,7 +125,7 @@ const Navbar = () => {
                 className="md:hidden p-2.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label={mobileMenuOpen ? "Fechar menu mobile" : "Abrir menu mobile"}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-gray-600 dark:text-gray-300" /> : <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-red-500" /> : <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
               </button>
 
               <ThemeMode />
@@ -144,33 +143,21 @@ const Navbar = () => {
 
             </div>
           </div>
-
-          {/* Menu Mobile */}
-          {mobileMenuOpen && (
-            <div className="md:hidden pb-4 flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 pt-4">
-              <SignedOut>
-                <LoginBtn full />
-              </SignedOut>
-                
-              <SignedIn>
-                <DashboardBtn full />
-              </SignedIn>
-            </div>
-          )}
         </div>
       </nav>
 
       {/* Drawer */}
-      {sideMenuOpen && (
+      {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 flex justify-end">
           <div
             className="absolute inset-0 bg-black/20"
-            onClick={() => setSideMenuOpen(false)}
+            onClick={() => setMobileMenuOpen(false)}
           />
 
           <div className="relative w-80 mt-16 h-[calc(100%-64px)] bg-white dark:bg-gray-900 shadow-2xl p-6">
             <div className="flex justify-between mb-6">
-              <h3 className="text-lg font-semibold dark:text-white dark:text-gray-900">
+              <h3 className="text-lg flex items-center gap-2 font-semibold dark:text-white dark:text-gray-900 ">
+                <TableOfContents className="w-5 h-5" />
                 Menu
               </h3>
             </div>
@@ -178,7 +165,7 @@ const Navbar = () => {
             <div className="flex flex-col gap-4">
               <button 
                 onClick={() => navigateTo("/dashboard")}
-                className="text-left hover:text-blue-500 dark:text-gray-900 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition min-h-[48px]"
+                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
                 aria-label="Ir para dashboard"
               >
                 Dashboard
@@ -189,9 +176,9 @@ const Navbar = () => {
                   document.getElementById("search-section")?.scrollIntoView({
                     behavior: "smooth"
                   });
-                  setSideMenuOpen(false);
+                  setMobileMenuOpen(false);
                 }}
-                className="text-left hover:text-blue-500 dark:text-gray-900 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition min-h-[48px]"
+                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
                 aria-label="Pesquisar posts"
               >
                 Pesquisar Post
@@ -199,7 +186,7 @@ const Navbar = () => {
 
               <button
                 onClick={() => navigate("/settings")}
-                className="text-left hover:text-blue-500 dark:text-gray-900 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition min-h-[48px]"
+                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
                 aria-label="Configurações"
               >
                 Configurações

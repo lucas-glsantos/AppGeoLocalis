@@ -93,11 +93,13 @@ const PostList = () => {
 
                 {posts.length === 0 ? (
                     <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <FileText className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                        <p className="text-gray-500 dark:text-gray-400 text-lg mb-2">
+                        <div className="inline-flex items-center justify-center p-4 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
+                            <FileText className="w-12 h-12 text-blue-500" />
+                        </div>
+                        <p className="text-gray-700 dark:text-gray-200 text-lg font-semibold mb-2">
                             Nenhum post encontrado
                         </p>
-                        <p className="text-gray-400 dark:text-gray-500 text-sm">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-sm mx-auto">
                             Nenhum post disponível nesta categoria ainda
                         </p>
                     </div>
