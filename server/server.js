@@ -22,8 +22,13 @@ dotenv.config();
 const app = express();
 app.set('trust proxy', 1);
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'https://geolocalis.vercel.app'
+].filter(Boolean);
+
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
