@@ -20,6 +20,7 @@ import { authLimiter, apiLimiter } from './middleware/rateLimiter.js';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
@@ -47,7 +48,7 @@ const startServer = async () => {
 
     const PORT = process.env.PORT || 3000;
       app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta: ${PORT}`);
+      console.log(`Servidor rodando na porta :${PORT}`);
     });
 
   } catch (error) {
