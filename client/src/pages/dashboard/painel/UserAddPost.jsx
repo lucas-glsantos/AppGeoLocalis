@@ -99,6 +99,7 @@ const UserAddPost = () => {
                     </div>
 
                     <div className="space-y-6">
+                        {/* Imagem */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Imagem de Capa
@@ -109,36 +110,49 @@ const UserAddPost = () => {
                                         <img 
                                             src={URL.createObjectURL(image)} 
                                             alt="Preview" 
-                                            className="w-full h-40 sm:h-56 object-cover rounded-xl" 
+                                            className="w-full h-40 sm:h-48 object-cover rounded-xl" 
                                         />
+
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                                            <span className="text-white text-sm font-medium">Clique para alterar</span>
+                                            <span className="text-white text-sm font-medium">
+                                                Clique para alterar
+                                            </span>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="w-full h-40 sm:h-56 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div className="w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         <Upload className="w-10 h-10 text-gray-400" />
-                                        <span className="text-sm text-gray-500 dark:text-gray-400">Clique para fazer upload</span>
+                                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                                            Clique para fazer upload
+                                        </span>
                                     </div>
                                 )}
-                                <input onChange={(e) => setImage(e.target.files[0])} type="file" id="image" accept="image/*" />
+
+                                <input 
+                                    onChange={(e) => setImage(e.target.files[0])} 
+                                    type="file" 
+                                    id="image" 
+                                    accept="image/*" 
+                                    className="hidden"
+                                />
                             </label>
                         </div>
 
+                        { /* Titulo */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Título
                             </label>
                             <input 
                                 type="text" 
-                                placeholder="Digite o título do post" 
-                                required 
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all" 
+                                placeholder="Digite o título do post" required 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all" 
                                 onChange={(e) => setTitle(e.target.value)} 
                                 value={title} 
                             />
                         </div>
 
+                        {/* SubTítulo */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Subtítulo
@@ -152,6 +166,7 @@ const UserAddPost = () => {
                             />
                         </div>
 
+                        {/* Descrição */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Descrição
@@ -168,6 +183,7 @@ const UserAddPost = () => {
                             </div>
                         </div>
 
+                        {/* Categoria */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                                 <Tag className="w-4 h-4" />
@@ -177,9 +193,9 @@ const UserAddPost = () => {
                                 onChange={(e) => setCategory(e.target.value)} 
                                 name="category" 
                                 value={category} 
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all cursor-pointer"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all cursor-pointer"
                             >
-                                <option value="" disabled>Selecionar categoria</option>
+                                <option value="" disabled>Selecionar</option>
                                 {post_categories.filter(c => c !== "All").map((item, index) => (
                                     <option key={index} value={item}>
                                         {item}

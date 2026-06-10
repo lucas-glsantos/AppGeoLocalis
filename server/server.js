@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { clerkMiddleware } from '@clerk/express';
 import { connectDB, pool } from './configs/db.js';
 
+import businessRouter from './routes/businessRoutes.js';
 import locationRouter from './routes/locationRoutes.js';
 import postRouter from './routes/postRoutes.js';
 import commentRouter from './routes/commentRoutes.js';
@@ -15,6 +16,7 @@ import connectCloudinary from './configs/cloudinary.js';
 import { Posts } from './models/Posts.js';
 import { Comment } from './models/Comment.js';
 import { User } from './models/User.js';
+import { Business } from './models/Business.js';
 import { authLimiter, apiLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
@@ -41,6 +43,7 @@ const startServer = async () => {
     await Posts.createPostTable();
     await Comment.createCommentTable();
     await User.createUsersTable();
+    await Business.createBusinessTable();
 
     await pool.query('ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name VARCHAR(255)').catch(() => {});
     await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password TEXT').catch(() => {});
@@ -50,6 +53,7 @@ const startServer = async () => {
     app.use('/api/comment', apiLimiter, commentRouter);
     app.use('/api/user', apiLimiter, userRouter);
     app.use('/api/location', apiLimiter, locationRouter);
+    app.use('/api/business', apiLimiter, businessRouter);
 
     const PORT = process.env.PORT || 3000;
       app.listen(PORT, () => {

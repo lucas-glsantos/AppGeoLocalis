@@ -44,14 +44,20 @@ const SourceMap = () => {
 
     // Obter localização pelo ip
     const getLocationByIp = useCallback(async () => {
-        const { data } = await api.get("/api/location/my-ip");
-        if (data.success && data.city) {
-            return {
-                city: data.city,
-                state: data.region,
-            };
+        try {
+            const { data } = await api.get("/api/location/my-ip");
+            if (data.success && data.city) {
+                return {
+                    city: data.city,
+                    state: data.region,
+                    lat: data.latitude || data.lat,
+                    lon: data.longitude || data.lon,
+                };
+            }
+            return null;
+        } catch {
+            return null;
         }
-        return null;
     }, [api]);
 
     // Obter localização central da cidade
@@ -98,23 +104,17 @@ const SourceMap = () => {
             const ipInfo = await getLocationByIp();
             if (ipInfo) {
                 // Usa o nome da cidade para buscar o centro geográfico
-                const cityCenter = await getCityCenter(ipInfo.city, ipInfo.state);
-                if (cityCenter) {
-                    setCenter(cityCenter.center);
-                    setUserRegion({ city: ipInfo.city, state: ipInfo.state });
-                    return; // early return
-                } else {
-                    setError("Não foi possível determinar sua localização. Tente novamente");
-                }
+                setCenter([ipInfo.lat, ipInfo.lon]);
+                setUserRegion({ city: ipInfo.city, state: ipInfo.state });
             } else {
-                setError("Não possível determinar sua localização pelo IP. Tente novamente");
+                setError("Não foi possível determinar sua localização. Tente novamente");
             }
         } catch {
             setError("Erro ao obter localização. Tente novamente.");
         } finally {
             setLoadingLocation(false);
         }
-    }, [getLocationByIp, getCityCenter]);
+    }, [getLocationByIp]);
 
 
     // Estado de carregamento inicial

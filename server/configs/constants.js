@@ -10,4 +10,8 @@ export const category_colors = {
     "Lifestyle": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
 };
 
+export const business_categories = [
+    "Alimentação", "Artesanato", "Beleza", "Consultoria", "Educação", "Moda", "Saúde", "Serviços", "Tecnologia", "Tudo"
+];
+
 export default post_categories;
