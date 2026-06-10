@@ -1,12 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, PlusCircle, List, MessageSquare } from "lucide-react";
+import { LayoutDashboard, PlusCircle, List, MessageSquare, Store, Briefcase } from "lucide-react";
 
 const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard", end: true },
     { to: "/dashboard/add-post", icon: PlusCircle, label: "Criar Post" },
     { to: "/dashboard/list-post", icon: List, label: "Listar Post" },
-    { to: "/dashboard/list-comment", icon: MessageSquare, label: "Comentários" }
+    { to: "/dashboard/list-comment", icon: MessageSquare, label: "Comentários" },
+    { to: "/dashboard/list-business", icon: Store, label: "Meus Comércios" },
+    { to: "/dashboard/add-business", icon: Briefcase, label: "Criar Comércio" },
 ];
 
 const linkClass = ({ isActive }) => `

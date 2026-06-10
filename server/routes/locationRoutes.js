@@ -10,7 +10,10 @@ locationRouter.get("/my-ip", async (req, res) => {
 
         async function tryApi(url) {
             try {
-                const response = await fetch (url, { signal: AbortSignal.timeout(500) });
+                const response = await fetch (url, { 
+                    signal: AbortSignal.timeout(8000),
+                    headers: { "User-Agent": "GeoLocalisApp/1.0" }
+                });
                 return await response.json();
             } catch {
                 return null;
@@ -28,7 +31,7 @@ locationRouter.get("/my-ip", async (req, res) => {
         }            
             
         // 2. Tentativa: ip-api.com com o IP do cliente
-        data = await tryApi(`http://ip-api.com/json/${clientIp}?fields=city,region,country,lat,lon`);
+        data = await tryApi(`https://ip-api.com/json/${clientIp}?fields=city,region,country,lat,lon`);
         if (data && data.status === "success") {
             return res.status(200).json({ 
                 success: true, city: data.city, region: data.region,
@@ -45,7 +48,7 @@ locationRouter.get("/my-ip", async (req, res) => {
         }
 
         // 4. Fallback: ip-api.com sem IP
-        data = await tryApi("http://ip-api.com/json/?fields=city,region,country,lat,lon");  
+        data = await tryApi("https://ip-api.com/json/?fields=city,region,country,lat,lon");  
         if (data && data.status === "success") {
             return res.status(200).json({ 
                 success: true, city: data.city, region: data.region, 

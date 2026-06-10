@@ -2,6 +2,7 @@ import { lazy, Suspense, memo } from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { useApp } from "./controllers/AppContext";
 import { Loader2 } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react"
 
 // Rotas públicas 
 const Home = lazy(() => import("./pages/Home"));
@@ -14,6 +15,8 @@ const Dashboard = lazy(() => import("./pages/dashboard/Dashboard"));
 const AddPost = lazy(() => import("./pages/dashboard/painel/UserAddPost"));
 const ListPost = lazy(() => import("./pages/dashboard/painel/UserListPost"));
 const Comments = lazy(() => import("./pages/dashboard/painel/Comments"));
+const AddBusiness = lazy(() => import("./pages/dashboard/painel/busines/UserAddBusiness"));
+const ListBusiness = lazy(() => import("./pages/dashboard/painel/busines/UserListBusiness"));
 
 
 const ProtectedRoute = memo(() => {
@@ -24,30 +27,35 @@ const ProtectedRoute = memo(() => {
 
 const App = () => {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 transition-colors duration-300">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-300" />
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Carregando...
-                </span>
-            </div>}>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/post/:id" element={<Post />} />
-                
-                <Route element={<ProtectedRoute />}>
-                    <Route path="/dashboard" element={<Layout />}>
-                        <Route index element={<Dashboard />} />
-                        <Route path="add-post" element={<AddPost />} />
-                        <Route path="list-post" element={<ListPost />} />
-                        <Route path="list-comment" element={<Comments />} />
+        <>
+            <Analytics />
+            <Suspense fallback={
+                <div className="min-h-screen flex flex-col items-center justify-center gap-2 bg-white dark:bg-gray-900 transition-colors duration-300">
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-600 dark:text-gray-300" />
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Carregando...
+                    </span>
+                </div>}>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/post/:id" element={<Post />} />
+
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/dashboard" element={<Layout />}>
+                            <Route index element={<Dashboard />} />
+                            <Route path="add-post" element={<AddPost />} />
+                            <Route path="list-post" element={<ListPost />} />
+                            <Route path="list-comment" element={<Comments />} />
+                            <Route path="add-business" element={<AddBusiness />} />
+                            <Route path="list-business" element={<ListBusiness />} />
+                        </Route>
                     </Route>
-                </Route>
-                
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </Suspense>
+
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </Suspense>
+        </>
     );
 };
 
