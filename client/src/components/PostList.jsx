@@ -76,6 +76,8 @@ const PostList = () => {
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     Carregando...
                                 </span>
+                            ) : filteredPosts.length === 0 ? (
+                                "Nenhum post encontrado"
                             ) : (
                                 `${filteredPosts.length} posts publicados`
                             )}

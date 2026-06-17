@@ -98,17 +98,19 @@ async function findByAuthor(authorId) {
 async function findNearby(lat, lon, radiusKm = 5) {
     try {
         const result = await pool.query(`
-            SELECT *, (
-                6371 * acos(
-                    cos(radians($1)) * cos(radians(latitude)) *
-                    cos(radians(longitude) - radians($2)) +
-                    sin(radians($1)) * sin(radians(latitude))
-                )
-            ) AS distance
-            FROM businesses
-            WHERE is_active = true
-            HAVING distance < $3
-            ORDER BY distance    
+            SELECT * FROM(
+                SELECT *, (
+                    6371 * acos(
+                        cos(radians($1)) * cos(radians(latitude)) *
+                        cos(radians(longitude) - radians($2)) +
+                        sin(radians($1)) * sin(radians(latitude))
+                    )
+                ) AS distance
+                FROM businesses
+                WHERE is_active = true
+            ) sub
+            WHERE distance < $3
+            ORDER BY distance
         `, [lat, lon, radiusKm]);
         return result.rows;
     } catch (error) {
@@ -164,7 +166,7 @@ async function findOneAndUpdate(query, update) {
         }
 
         const result = await pool.query(`UPDATE businesses SET ${setClauses.join(', ')} WHERE ${conditions.join(' AND ')} RETURNING *`, values);
-        
+
         return result.rows[0];
     } catch (error) {
         throw error;

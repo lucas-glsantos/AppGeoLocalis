@@ -11,7 +11,7 @@ export const category_colors = {
 };
 
 export const business_categories = [
-    "Alimentação", "Artesanato", "Beleza", "Consultoria", "Educação", "Moda", "Saúde", "Serviços", "Tecnologia", "Tudo"
+    "Alimentação", "Artesanato", "Beleza", "Consultoria", "Educação", "Moda", "Saúde", "Serviços", "Tecnologia", "Outro"
 ];
 
 export default post_categories;

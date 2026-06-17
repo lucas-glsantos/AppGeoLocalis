@@ -22,14 +22,14 @@ export const AppProvider = ({ children }) => {
     const getTokenRef = useRef(getToken);
     const userLoadedRef = useRef(false);
 
-    
+
     const fetchPosts = useCallback(async () => {
         try {
             const { data } = await axios.get("/api/post/all");
             data.success ? setPosts(data.posts) : toast.error(data.message);
         } catch (error) {
             console.error("Fetch posts error:", error);
-        } 
+        }
 
     }, []);
 
@@ -66,25 +66,29 @@ export const AppProvider = ({ children }) => {
     const loadUser = useCallback(async () => {
         if (!clerkLoaded || !isLoaded) return;
         if (userLoadedRef.current) return;
-        
+
         userLoadedRef.current = true;
         setIsLoading(true);
-        
+
         try {
             if (userId && clerkUser) {
                 const name = clerkUser.fullName || clerkUser.firstName || localStorage.getItem("userName");
                 const image = clerkUser.imageUrl || localStorage.getItem("userImage");
-                const email = clerkUser.primaryEmailAddress?.email ||
-                    clerkUser.emailAddresses?.[0]?.emailAddress ||
-                    localStorage.getItem("userEmail");
+                const email = clerkUser.primaryEmailAddress?.emailAddress || clerkUser.primaryEmailAddress?.email || clerkUser.emailAddresses?.[0]?.emailAddress;
 
-                setUser({
-                    id: userId,
-                    name,
-                    image: image || null,
-                    email: email || null
-                });
+                setUser({ id: userId, name, image, email });
                 setIsAuthenticated(true);
+
+                if (!localStorage.getItem("userSynced")) {
+                    axios.post("/api/auth/sync", { name, email, image })
+                        .then(res => {
+                            if (res.data.success) {
+                                localStorage.setItem("userSynced", "true");
+                            }
+                        })
+                        .catch(error => console.error("Erro no auto-sync:", error));
+                }
+
             } else {
                 setUser(null);
                 setIsAuthenticated(false);
@@ -121,10 +125,10 @@ export const AppProvider = ({ children }) => {
     }, []);
 
     const authValue = useMemo(() => ({
-        user, 
-        isAuthenticated, 
-        isLoading, 
-        logout, 
+        user,
+        isAuthenticated,
+        isLoading,
+        logout,
         getToken,
     }), [user, isAuthenticated, isLoading, logout, getToken]);
 
@@ -137,12 +141,12 @@ export const AppProvider = ({ children }) => {
     }), [posts, input, fetchPosts]);
 
     const apiValue = useMemo(() => axios, []);
-    
+
     const value = useMemo(() => ({
-        ...authValue, 
-        ...postsValue, 
+        ...authValue,
+        ...postsValue,
         api: apiValue,
-    }), [authValue, postsValue, apiValue]) 
+    }), [authValue, postsValue, apiValue])
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

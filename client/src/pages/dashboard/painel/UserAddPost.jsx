@@ -3,7 +3,8 @@ import { post_categories } from "../../../assets/assets";
 import ReactQuill from "react-quill-new";
 import { useApp } from "../../../controllers/AppContext";
 import toast from "react-hot-toast";
-import { Upload, FileText, Tag, Send, Loader2 } from "lucide-react";
+import { Upload, FileText, Tag, Send, Loader2, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import "react-quill-new/dist/quill.snow.css";
 
@@ -28,6 +29,7 @@ const UserAddPost = () => {
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState("Tudo");
     const [isPublished, setIsPublished] = useState(false);
+    const navigate = useNavigate();
 
     const modules = useMemo(() => QUILL_MODULES, []);
 
@@ -77,6 +79,7 @@ const UserAddPost = () => {
                 toast.success(data.message);
                 resetForm();
                 await fetchPosts();
+                navigate("/dashboard/list-post")
             } else {
                 toast.error(data.message);
             }
@@ -87,14 +90,19 @@ const UserAddPost = () => {
         }
     };
 
+    const handleDirect = (e) => {
+        e.preventDefault();
+        navigate("/dashboard/list-post");
+    };
+
     return (
         <form onSubmit={onSubmitHandler} className="flex-1 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 min-h-full">
             <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-10">
-                <div className="bg-white dark:bg-gray-800 w-full p-4 sm:p-6 lg:p-8 shadow-lg rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-800 w-full p-4 sm:p-6 lg:p-8 shadow-lg rounded-2xl border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2 mb-6">
-                        <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                            Criar novo Post
+                            Criar Post
                         </h2>
                     </div>
 
@@ -110,7 +118,7 @@ const UserAddPost = () => {
                                         <img 
                                             src={URL.createObjectURL(image)} 
                                             alt="Preview" 
-                                            className="w-full h-40 sm:h-48 object-cover rounded-xl" 
+                                            className="w-full h-40 sm:h-48 object-cover rounded-xl"
                                         />
 
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
@@ -146,9 +154,10 @@ const UserAddPost = () => {
                             <input 
                                 type="text" 
                                 placeholder="Digite o título do post" required 
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all" 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all" 
                                 onChange={(e) => setTitle(e.target.value)} 
-                                value={title} 
+                                value={title}
+                                title="Título"
                             />
                         </div>
 
@@ -160,18 +169,19 @@ const UserAddPost = () => {
                             <input 
                                 type="text" 
                                 placeholder="Digite o subtítulo (opcional)" 
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all" 
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all" 
                                 onChange={(e) => setSubTitle(e.target.value)} 
                                 value={subTitle} 
+                                title="Subtítulo"
                             />
                         </div>
 
-                        {/* Descrição */}
+                        {/* Conteúdo */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Descrição
+                                Conteúdo
                             </label>
-                            <div className="h-64 sm:h-80 pb-16 sm:pb-10 relative [&_.ql-editor]:min-h-[200px] [&_.ql-container]:text-base">
+                            <div className="h-64 sm:h-80 pb-16 sm:pb-10 relative [&_.ql-editor]:min-h-[200px] [&_.ql-container]:text-base bg-gray-100 dark:bg-gray-700/50">
                                 <ReactQuill
                                     theme="snow"
                                     value={description}
@@ -185,7 +195,7 @@ const UserAddPost = () => {
 
                         {/* Categoria */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 py-2 flex items-center gap-2">
                                 <Tag className="w-4 h-4" />
                                 Categoria
                             </label>
@@ -193,7 +203,8 @@ const UserAddPost = () => {
                                 onChange={(e) => setCategory(e.target.value)} 
                                 name="category" 
                                 value={category} 
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all cursor-pointer"
+                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all cursor-pointer"
+                                title="Categoria"
                             >
                                 <option value="" disabled>Selecionar</option>
                                 {post_categories.filter(c => c !== "All").map((item, index) => (
@@ -204,36 +215,52 @@ const UserAddPost = () => {
                             </select>
                         </div>
 
-                        <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                        {/* Publicado */}
+                        <div className="flex items-center gap-3 p-4 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700/50 rounded-xl">
                             <input 
                                 type="checkbox" 
                                 checked={isPublished} 
                                 id="publish" 
                                 className="w-5 h-5 rounded cursor-pointer accent-blue-600" 
-                                onChange={(e) => setIsPublished(e.target.checked)} 
+                                onChange={(e) => setIsPublished(e.target.checked)}
                             />
-                            <label htmlFor="publish" className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                            <label htmlFor="publish" className="font-medium text-gray-700 dark:text-gray-300 cursor-pointer" title="Publicar agora">
                                 Publicar agora
                             </label>
                         </div>
 
-                        <button 
-                            disabled={isAdding} 
-                            type="submit" 
-                            className="w-full sm:w-auto px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl cursor-pointer font-semibold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isAdding ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Publicando...
-                                </>
-                            ) : (
-                                <>
-                                    <Send className="w-5 h-5" />
-                                    Publicar
-                                </>
-                            )}
-                        </button>
+                        {/* Botões */}
+                        <div className="flex flex-row justify-center items-center gap-4 pt-4 w-full">
+                            <button
+                                type="submit"
+                                disabled={isAdding} 
+                                className="w-auto p-4 sm:px-6 sm:py-4 border border-gray-800 dark:border-gray-400 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Publicar"
+                            >
+                                {isAdding ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Publicando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-5 h-5" />
+                                        Publicar
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleDirect}
+                                disabled={isAdding}
+                                className="w-auto p-4 sm:px-6 sm:py-4 border border-gray-800 dark:border-gray-400 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Cancelar"
+                            >
+                                <X className="w-5 h-5" />
+                                Cancelar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

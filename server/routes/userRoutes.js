@@ -3,6 +3,7 @@ import { protect } from "../middleware/auth.js";
 import { User } from "../models/User.js";
 import { Posts } from "../models/Posts.js";
 import { Comment } from "../models/Comment.js";
+import { Business } from "../models/Business.js";
 
 const userRouter = express.Router();
 
@@ -23,11 +24,13 @@ userRouter.get("/dashboard", protect, async (req, res) => {
     try {
         const posts = await Posts.findByAuthor(req.userId);
         const comments = await Comment.findByAuthor(req.userId);
-        
+        const businesses = await Business.findByAuthor(req.userId);
+
         const dashboardData = {
             posts: posts.length,
             comments: comments.length,
             drafts: posts.filter(p => !p.is_published).length,
+            userBusiness: businesses[0] || null,
             recentPosts: posts.slice(0, 5)
         };
         
