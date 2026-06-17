@@ -3,7 +3,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { useApp } from "../controllers/AppContext";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "../controllers/ThemeContext";
-import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn, TableOfContents } from "lucide-react";
+import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn, Search, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -104,13 +104,6 @@ const Navbar = () => {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
-            <img 
-              onClick={() => navigate("/")} 
-              src={assets.geolocalis} 
-              alt="logo" 
-              className="w-20 cursor-pointer" 
-            />
-        
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -128,6 +121,15 @@ const Navbar = () => {
                 {mobileMenuOpen ? <X className="w-5 h-5 text-gray-600 dark:text-gray-300 hover:text-red-500" /> : <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
               </button>
 
+              <img 
+                onClick={() => navigate("/")} 
+                src={assets.geolocalis} 
+                alt="logo" 
+                className="w-20 cursor-pointer" 
+              />
+            </div>
+        
+            <div className="flex items-center gap-3">
               <ThemeMode />
 
               <SignedOut>
@@ -148,26 +150,26 @@ const Navbar = () => {
 
       {/* Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex justify-end">
+        <div className="fixed inset-0 z-40 flex justify-start">
           <div
             className="absolute inset-0 bg-black/20"
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          <div className="relative w-80 mt-16 h-[calc(100%-64px)] bg-white dark:bg-gray-900 shadow-2xl p-6">
+          <div className="relative w-80 mt-16 h-[calc(100%-64px)] bg-gray-50 dark:bg-gray-900 shadow-2xl p-6">
             <div className="flex justify-between mb-6">
-              <h3 className="text-lg flex items-center gap-2 font-semibold dark:text-white dark:text-gray-900 ">
-                <TableOfContents className="w-5 h-5" />
+              <h3 className="text-lg flex items-center gap-2 font-semibold dark:text-white dark:text-gray-900">
                 Menu
               </h3>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <button 
                 onClick={() => navigateTo("/dashboard")}
-                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
+                className="flex items-center gap-3 text-left rounded-lg py-2 px-2 hover:text-blue-500 dark:text-white dark:hover:text-blue-500 transition min-h-[48px]"
                 aria-label="Ir para dashboard"
               >
+                <LayoutDashboard className="w-5 h-5" />
                 Dashboard
               </button>
 
@@ -178,17 +180,19 @@ const Navbar = () => {
                   });
                   setMobileMenuOpen(false);
                 }}
-                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
+                className="flex items-center gap-3 text-left rounded-lg py-2 px-2 hover:text-blue-500 dark:text-white dark:hover:text-blue-500 transition min-h-[48px]"
                 aria-label="Pesquisar posts"
               >
+                <Search className="w-5 h-5" />
                 Pesquisar Post
               </button>
 
               <button
                 onClick={() => navigate("/settings")}
-                className="text-left hover:text-blue-400 dark:text-white rounded-xl py-3 px-4 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-h-[48px]"
+                className="flex items-center gap-3 text-left rounded-lg py-2 px-2 hover:text-blue-500 dark:text-white dark:hover:text-blue-500 transition min-h-[48px]"
                 aria-label="Configurações"
               >
+                <Settings className="w-5 h-5" />
                 Configurações
               </button>
             </div>

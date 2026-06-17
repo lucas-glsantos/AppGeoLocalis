@@ -25,7 +25,8 @@ export const addComment = async (req, res) => {
             post: parseInt(post), 
             name, 
             content, 
-            author: postData.author_id 
+            author: postData.author_id,
+            commenterId: req.body.author || null
         });
 
         res.status(201).json({ success: true, message: "Comentário adicionado para revisão", comment });
@@ -59,8 +60,8 @@ export const getAuthorComments = async (req, res) => {
     }
 };
 
-// Função Aprovar comentário por ID
-export const approveCommentById = async (req, res) => {
+// Função Aprovar/Arquivar comentário por ID
+export const toggleCommentById = async (req, res) => {
     try {
         const { commentId } = req.params;
         const userId = req.userId;
@@ -69,25 +70,37 @@ export const approveCommentById = async (req, res) => {
         if (!userId) {
             return res.status(401).json({ success: false, message: "Não autorizado" });
         }
-        
+
         const comment = await Comment.findById(parseInt(commentId));
         if (!comment) {
             return res.status(404).json({ success: false, message: "Comentário não encontrado" });
         }
 
-        const post = await Posts.findById(comment.post);
+        const post = await Posts.findById(comment.post_id);
         const isPostAuthor = post?.author_id === userId;
 
         if (!isAdmin && !isPostAuthor) {
-            return res.status(403).json({ success: false, message: "Você só pode aprovar comentários dos seus posts "});
+            return res.status(403).json({ success: false, message: "Apenas o autor do post pode fazer alterações" });
         }
 
-        await Comment.findOneAndUpdate({ id: parseInt(commentId) }, { is_approved: true });
-        res.status(200).json({ success: true, message: "Comentário aprovado com sucesso" });
+        // Toggle Aprovado <-> Arquivado
+        const updates = comment.is_approved 
+            ? { is_approved: false, is_archived: true } 
+            : { is_approved: true, is_archived: false };
+
+        await Comment.findOneAndUpdate({ id: parseInt(commentId) }, updates);
+
+        res.status(200).json({
+            success: true,
+            message: comment.is_approved
+                ? "Comentário arquivado" 
+                : "Comentário aprovado"
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ success: false, message: error.message });        
     }
 };
+
 
 // Função Deletar comentário por ID
 export const deleteCommentById = async (req, res) => {
@@ -105,16 +118,16 @@ export const deleteCommentById = async (req, res) => {
             return res.status(404).json({ success: false, message: "Comentário não encontrado" });
         }
 
-        const post = await Posts.findById(comment.post);
+        const post = await Posts.findById(comment.post_id);
         const isPostAuthor = post?.author_id === userId;
-        const isCommentAuthor = comment.author === userId;
+        const isCommentAuthor = comment.author_id === userId;
 
         if (!isAdmin && !isPostAuthor && !isCommentAuthor) {
             return res.status(403).json({ success: false, message: "Você não tem permissão para deletar este comentário" });
         }
 
-        await Comment.findOneAndDelete({ id: parseInt(commentId) });
-        res.status(200).json({ success: true, message: "Comentário deletado com sucesso" });
+        await Comment.findOneAndDelete(parseInt(commentId));
+        res.status(200).json({ success: true, message: "Comentário deletado" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

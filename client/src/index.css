@@ -9,7 +9,7 @@
 
 
 * {
-  transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 
@@ -22,9 +22,9 @@
 }
 
 @layer base {
-  body {
-    @apply transition-colors duration-300;
-  }
+    body {
+        @apply transition-colors duration-300;
+    }
 }
 
 body {
@@ -42,4 +42,9 @@ body.dark {
 
 .reset-tw strong {
     font-weight: 600 !important;
+}
+
+.custom-business-marker {
+    background: transparent !important;
+    border: none !important;
 }

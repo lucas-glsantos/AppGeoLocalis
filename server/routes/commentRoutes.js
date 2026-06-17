@@ -1,7 +1,7 @@
 import express from "express";
 import rateLimit from "express-rate-limit"
 import { protect } from "../middleware/auth.js";
-import { addComment, getPostApprovedComments, getAuthorComments, approveCommentById, deleteCommentById } from "../controllers/commentsController.js";
+import { addComment, getPostApprovedComments, getAuthorComments, toggleCommentById, deleteCommentById } from "../controllers/commentsController.js";
 
 const commentRouter = express.Router();
 
@@ -20,7 +20,7 @@ const commentLimiter = rateLimit({
 commentRouter.post("/add", protect, commentLimiter, addComment);
 commentRouter.get("/post/:postId", getPostApprovedComments);
 commentRouter.get("/author", protect, getAuthorComments);
-commentRouter.put("/approve/:commentId", protect, approveCommentById);
+commentRouter.put("/toggle-status/:commentId", protect, toggleCommentById);
 commentRouter.delete("/:commentId", protect, deleteCommentById);
 
 export default commentRouter;

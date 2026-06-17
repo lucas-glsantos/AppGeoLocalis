@@ -22,6 +22,11 @@ export const addBusiness = async (req, res) => {
     try {
         const userId = req.userId;
 
+        const existingBusinesses = await Business.findByAuthor(userId);
+        if (existingBusinesses.length > 0) {
+            return res.status(400).json({ success: false, message: 'Você já possui um comércio cadastrado. Edite-o em "Meus Comércios" '})
+        }
+
         let rawPayload;
         try {
             rawPayload = typeof req.body.business === "string" ? JSON.parse(req.body.business) : req.body.business;

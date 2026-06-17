@@ -11,7 +11,7 @@ businessRouter.get("/all", getAllActiveBusinesses);
 businessRouter.get("/nearby", getNearbyBusinesses);
 businessRouter.get("/user", protect, getUserBusinesses);
 businessRouter.get("/:businessId", getBusinessById);
-businessRouter.put("/:businessId", protect, upload.single("iamge"), updateBusinessById);
+businessRouter.put("/:businessId", protect, upload.single("image"), updateBusinessById);
 businessRouter.delete("/:businessId", protect, deleteLimiter, deleteBusinessById);
 
 export default businessRouter;
