@@ -7,6 +7,7 @@ import { clerkMiddleware } from '@clerk/express';
 import { connectDB, pool } from './configs/db.js';
 
 import businessRouter from './routes/businessRoutes.js';
+import favoriteRouter from './routes/favoriteRoutes.js';
 import locationRouter from './routes/locationRoutes.js';
 import postRouter from './routes/postRoutes.js';
 import commentRouter from './routes/commentRoutes.js';
@@ -17,6 +18,7 @@ import { Posts } from './models/Posts.js';
 import { Comment } from './models/Comment.js';
 import { User } from './models/User.js';
 import { Business } from './models/Business.js';
+import { Favorite } from './models/Favorite.js';
 import { authLimiter, apiLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
@@ -44,9 +46,11 @@ const startServer = async () => {
     await Comment.createCommentTable();
     await User.createUsersTable();
     await Business.createBusinessTable();
+    await Favorite.createFavoritesTable();
 
-    await pool.query('ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name VARCHAR(255)').catch(() => {});
-    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password TEXT').catch(() => {});
+    await pool.query('ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_name VARCHAR(255)').catch(console.error);
+    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password TEXT').catch(console.error);
+    await pool.query('ALTER TABLE favorites ADD COLUMN IF NOT EXISTS business_id INTEGER').catch(console.error);
 
     app.use('/api/auth', authLimiter, authRouter);
     app.use('/api/post', apiLimiter, postRouter);
@@ -54,6 +58,7 @@ const startServer = async () => {
     app.use('/api/user', apiLimiter, userRouter);
     app.use('/api/location', apiLimiter, locationRouter);
     app.use('/api/business', apiLimiter, businessRouter);
+    app.use('/api/favorite', apiLimiter, favoriteRouter);
 
     const PORT = process.env.PORT || 3000;
       app.listen(PORT, () => {

@@ -102,7 +102,7 @@ export const getBusinessById = async (req, res) => {
 export const getNearbyBusinesses = async (req, res) => {
     try {
         const { lat, lon, radius } = req.query;
-        if (!lat || !lon) {
+        if (lat === undefined || lon === undefined || lat === null || lon === null || lat === "" || lon === "") {
             return res.status(400).json({ success: false, message: "lat e lon são obrigatórios" });
         }
 

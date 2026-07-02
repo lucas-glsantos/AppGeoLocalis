@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 const Home = lazy(() => import("./pages/Home"));
 const Post = lazy(() => import("./pages/Post"));
 const Login = lazy(() => import("./pages/Login"));
+const Nearby = lazy(() => import("./pages/Nearby"));
 
 // Rotas do autor
 const Layout = lazy(() => import("./pages/dashboard/Layout"));
@@ -44,6 +45,7 @@ const App = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/post/:id" element={<Post />} />
+                    <Route path="/nearby" element={<Nearby />} />
 
                     <Route element={<ProtectedRoute />}>
                         <Route path="/dashboard" element={<Layout />}>

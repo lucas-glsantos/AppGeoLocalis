@@ -3,7 +3,7 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { useApp } from "../controllers/AppContext";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTheme } from "../controllers/ThemeContext";
-import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn, Search, Settings } from "lucide-react";
+import { Sun, Moon, Menu, X, User, Check, Loader2, LayoutDashboard, LogIn, Search, Settings, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -185,6 +185,15 @@ const Navbar = () => {
               >
                 <Search className="w-5 h-5" />
                 Pesquisar Post
+              </button>
+
+              <button
+                onClick={() => navigateTo("/nearby")}
+                className="flex items-center gap-3 text-left rounded-lg py-2 px-2 hover:text-blue-500 dark:text-white dark:hover:text-blue-500 transition min-h-[48px]"
+                aria-label="Comércios próximos"
+              >
+                <Store className="w-5 h-5" />
+                Comércios Próximos
               </button>
 
               <button

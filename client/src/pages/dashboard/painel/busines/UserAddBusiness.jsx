@@ -1,5 +1,5 @@
 import { useApp } from "../../../../controllers/AppContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import { Edit3, Loader2, MapPin, Phone, Send, Smartphone, Store, Tag, Upload, X } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
@@ -36,6 +36,7 @@ const UserAddBusiness = () => {
     const [existingBusiness, setExistingBusiness] = useState(null);
 
     const [image, setImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [category, setCategory] = useState("");
@@ -46,6 +47,8 @@ const UserAddBusiness = () => {
     const [longitude, setLongitude] = useState(null);
 
     const resetForm = () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
         setImage(null);
         setName("");
         setDescription("");
@@ -112,6 +115,24 @@ const UserAddBusiness = () => {
         navigate("/dashboard/list-business")
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        setImage(file);
+        setPreviewUrl(file ? URL.createObjectURL(file) : null);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, []);
+
+    const handleMapClick = useCallback(([lat, lng]) => {
+        setLatitude(lat);
+        setLongitude(lng);
+    }, []);
+
     useEffect(() => {
         const checkExisting = async () => {
             try {
@@ -128,6 +149,40 @@ const UserAddBusiness = () => {
         };
         checkExisting();
     }, [api]);
+
+    const mapSection = useMemo(() => (
+        <div>
+            <label className="block font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Localização no Mapa
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Clique no mapa para marcar onde seu comércio está localizado
+            </p>
+            <div className="h-[300px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600">
+                <MapContainer
+                    center={[-23.5505, -46.6333]}
+                    zoom={13}
+                    className="w-full h-full"
+                    scrollWheelZoom={true}
+                >
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+
+                    <DraggableMarker
+                        position={latitude !== null ? [latitude, longitude] : null}
+                        setPosition={handleMapClick}
+                    />
+                </MapContainer>
+            </div>
+            {latitude !== null && (
+                <p className="text-xs text-gray-500 mt-1">
+                    Lat: {latitude.toFixed(4)}, Lng: {longitude.toFixed(4)}
+                </p>
+            )}
+        </div>
+    ), [latitude, longitude, handleMapClick])
 
     if (isLoading) {
         return (
@@ -200,7 +255,7 @@ const UserAddBusiness = () => {
                                 {image ? (
                                     <div className="relative group">
                                         <img
-                                            src={URL.createObjectURL(image)}
+                                            src={previewUrl}
                                             alt="Preview"
                                             className="w-full h-40 sm:h-48 object-cover rounded-xl"
                                         />
@@ -221,7 +276,7 @@ const UserAddBusiness = () => {
                                 )}
 
                                 <input
-                                    onChange={(e) => setImage(e.target.files[0])}
+                                    onChange={handleImageChange}
                                     type="file"
                                     id="image"
                                     accept="image/*"
@@ -336,38 +391,7 @@ const UserAddBusiness = () => {
                         </div>
 
                         {/* Mapa */}
-                        <div>
-                            <label className="block font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                <MapPin className="w-5 h-5" />
-                                Localização no Mapa
-                            </label>
-
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                                Clique no mapa para marcar onde seu comércio está localizado
-                            </p>
-                            <div className="h-[300px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600">
-                                <MapContainer
-                                    center={[-23.5505, -46.6333]}
-                                    zoom={13}
-                                    className="w-full h-full"
-                                    scrollWheelZoom={true}
-                                >
-                                    <TileLayer
-                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    />
-
-                                    <DraggableMarker
-                                        position={latitude !== null ? [latitude, longitude] : null}
-                                        setPosition={([lat, lng]) => { setLatitude(lat); setLongitude(lng); }}
-                                    />
-                                </MapContainer>
-                            </div>
-                            {latitude !== null && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Lat: {latitude.toFixed(4)}, Lng: {longitude.toFixed(4)}
-                                </p>
-                            )}
-                        </div>
+                        {mapSection}
 
                         {/* Botão */}
                         <div className="flex flex-row justify-center items-center gap-4 pt-4 w-full">
