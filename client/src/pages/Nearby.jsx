@@ -6,8 +6,9 @@ import BusinessCard from "../components/BusinessCard";
 import { Loader2, List, Store, Search, X, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { infoToast } from "../assets/infoToast";
-import { mainNavItems } from "./dashboard/PublicLayout";
-import PublicLayout from "./dashboard/PublicLayout";
+import PublicLayout, { mainNavItems } from "./dashboard/PublicLayout";
+import { map_categories } from "@/assets/assets";
+
 
 const Nearby = () => {
   const { api, isAuthenticated } = useApp();
@@ -19,8 +20,6 @@ const Nearby = () => {
   const [category, setCategory] = useState("Todas");
   const [viewMode, setViewMode] = useState("list"); // "list" | "map"
   const [userCoords, setUserCoords] = useState(null);
-
-  const categories = ["Todas", "Alimentação", "Artesanato", "Beleza", "Consultoria", "Educação", "Moda", "Saúde", "Serviços", "Tecnologia", "Outro"];
 
   // Ao montar, Obtém IP Location + businesses próximos
   useEffect(() => {
@@ -49,78 +48,71 @@ const Nearby = () => {
           setBusinesses(bizRes.data.businesses);
         }
       } catch (error) {
+        console.error("Erro ao carregar comércios próximos:", error)
         if (!cancelled) setError("Não foi possível carregar comércios próximos.");
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
     loadData();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true };
   }, [api]);
 
-  // Se Logado, carrega favoritos
+  // Carrega Favoritos do Usuário Logado
   useEffect(() => {
     if (!isAuthenticated) return;
     const controller = new AbortController();
-    api
-      .get("/api/favorite/user", { signal: controller.signal })
+    api.get("/api/favorite/user", { signal: controller.signal })
       .then(({ data }) => {
         if (data.success) setFavorites(new Set(data.favorites.map((f) => f.id)));
       })
       .catch((error) => {
-        if (error.name !== "CanceledError") console.error(error);
+        if (error.name !== "CanceledError") console.error("Erro ao Carregar favoritos:", error);
       });
     return () => controller.abort();
   }, [api, isAuthenticated]);
 
   // Toggle favoritar
-  const handleFavoriteToggle = useCallback(
-    async (businessId) => {
-      if (!isAuthenticated) {
-        infoToast("favorite-login", "Faça login para favoritar comércios");
-        return;
-      }
+  const handleFavoriteToggle = useCallback(async (businessId) => {
+    if (!isAuthenticated) {
+      infoToast("favorite-login", "Faça login para favoritar comércios");
+      return;
+    }
 
-      try {
-        if (favorites.has(businessId)) {
-          await api.delete(`/api/favorite/remove/${businessId}`);
-          setFavorites((prev) => {
-            const n = new Set(prev);
-            n.delete(businessId);
-            return n;
-          });
-        } else {
-          await api.post("/api/favorite/add", { businessId });
-          setFavorites((prev) => new Set(prev).add(businessId));
-        }
-      } catch (error) {
-        toast.error("Erro ao atualizar favorito");
+    try {
+      if (favorites.has(businessId)) {
+        await api.delete(`/api/favorite/remove/${businessId}`);
+        setFavorites((prev) => { const deleteFavorite = new Set(prev);
+          deleteFavorite.delete(businessId);
+          return deleteFavorite;
+        });
+      } else {
+        await api.post(`/api/favorite/add/${businessId}`);
+        setFavorites((prev) => new Set(prev).add(businessId));
       }
-    },
-    [api, isAuthenticated, favorites],
-  );
+    } catch (error) {
+      console.error("Erro ao atualizar favorito:", error);
+      toast.error("Erro ao atualizar favorito");
+    }
+  }, [api, isAuthenticated, favorites]);
 
   // Filtro local
-  const filtered = businesses.filter((b) => {
-    const matchName = b.name.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = category === "Todas" || b.category === category;
+  const filtered = businesses.filter((busines) => {
+    const matchName = busines.name.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = category === "Todas" || busines.category === category;
     return matchName && matchCategory;
   });
 
   // Render
   return (
-    <PublicLayout
-      items={[...mainNavItems]}
-    >
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Store className="w-8 h-8 text-orange-500" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Comércios Próximos</h1>
-        </div>
+    <PublicLayout items={[...mainNavItems]}>
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <Store className="w-8 h-8 text-blue-500" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Comércios Próximos</h1>
+          </div>
 
         {/* Search + Filter */}
         <div className="flex flex-wrap gap-3 mb-6">
@@ -144,15 +136,15 @@ const Nearby = () => {
             onChange={(e) => setCategory(e.target.value)}
             className="px-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {map_categories.map((categories) => (
+              <option key={categories} value={categories}>
+                {categories}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Tabs: Lista | Mapa */}
+        {/* Tabs: Lista e Mapa */}
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setViewMode("list")}
@@ -179,15 +171,15 @@ const Nearby = () => {
         )}
 
         {/* Error */}
-        {error && 
+        {error && !loading && (
           <div className="text-center py-20 text-red-500">
             {error}
-          </div>}
+          </div>
+        )}
 
         {/* Content */}
-        {!loading &&
-          !error &&
-          (viewMode === "list" ? (
+        {!loading && !error && (
+          viewMode === "list" ? (
             filtered.length === 0 ? (
               <div className="text-center py-20 text-gray-500">
                 <Store className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -196,18 +188,31 @@ const Nearby = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map((biz) => (
-                  <BusinessCard key={biz.id} business={biz} isFavorited={favorites.has(biz.id)} onFavoriteToggle={handleFavoriteToggle} />
+                  <BusinessCard 
+                    key={biz.id} 
+                    business={biz} 
+                    isFavorited={favorites.has(biz.id)} 
+                    onFavoriteToggle={handleFavoriteToggle} 
+                  />
                 ))}
               </div>
             )
           ) : (
             <div className="h-[500px] rounded-2xl overflow-hidden shadow-md">
-              {userCoords && <LocalMap initialCoords={userCoords} favorites={favorites} onFavoriteToggle={handleFavoriteToggle} />}
+              {userCoords && (
+                <LocalMap 
+                  center={userCoords} 
+                  businesses={filtered}
+                  favorites={favorites} 
+                  onFavoriteToggle={handleFavoriteToggle} 
+                />
+              )}
             </div>
-          ))}
-      </main>
-      <Footer />
-    </div>
+            )
+          )}
+        </main>
+        <Footer />
+      </div>
     </PublicLayout>
   );
 };

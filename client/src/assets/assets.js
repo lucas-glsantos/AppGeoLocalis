@@ -7,4 +7,6 @@ export const assets = {
     geolocalis,
 };
 
-export const post_categories = ["Tudo", "Tecnologia", "Startup", "Finanças", "Lifestyle"];
+export const post_categories = ["Tudo", "Tecnologia", "Startup", "Finanças", "Lifestyle", "Outro"];
+
+export const map_categories = ["Tudo", "Tecnologia", "Startup", "Finanças", "Consultoria", "Lifestyle", "Educação", "Moda", "Saúde", "Serviços", "Outro"];
