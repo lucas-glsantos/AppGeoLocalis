@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import PostTableItem from "./PostTableItem";
-import { useApp } from "../../../controllers/AppContext";
+import { useApp } from "@/controllers/AppContext";
 import toast from "react-hot-toast";
 import { FileText, Loader2, StickyNotePlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";

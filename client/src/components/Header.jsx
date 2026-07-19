@@ -1,20 +1,5 @@
-import { Search } from "lucide-react";
-import { useApp } from "../controllers/AppContext";
 
 const Header = () => {
-    const { setInput } = useApp();
-    const inputRef = { current: { value: "" } };
-    
-    let localInputRef;
-    if (typeof window !== "undefined") {
-        localInputRef = localStorage.getItem("searchInput") || "";
-    }
-
-    const onSubmitHandler = async (e) => {
-        e.preventDefault();
-        const value = e.target.searchInput?.value?.trim() || localInputRef;
-        setInput(value);
-    };
 
     return (
         <header className="relative overflow-hidden">
