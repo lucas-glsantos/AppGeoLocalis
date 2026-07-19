@@ -34,8 +34,13 @@ const MapController = ({ center }) => {
 // Subcomponente para renderizar marcadores de cómercios próximos
 const BusinessMarkers = ({ businesses, center, onRecenter, favorites, onFavoriteToggle }) => {
 	const map = useMap();
-
+	const { api } = useApp();
+	const sessionId = useRef(localStorage.getItem("metrics_sid") || crypto.randomUUID());
 	const [isLoading, setIsLoading] = useState(null);
+
+	useEffect(() => {
+		localStorage.setItem("metrics_sid", sessionId.current);
+	}, []);
 
 	// Recentralizar no usuário
 	useEffect(() => {
@@ -61,14 +66,24 @@ const BusinessMarkers = ({ businesses, center, onRecenter, favorites, onFavorite
 				<Marker
 					key={biz.id}
 					position={[parseFloat(biz.latitude), parseFloat(biz.longitude)]}
+					eventHandlers={{
+						popupopen: () => {
+							api
+								.post("/api/metrics/view", {
+									businessId: biz.id,
+									sessionId: sessionId.current,
+								})
+								.catch(() => {});
+						},
+					}}
 					icon={L.divIcon({
 						className: "custom-business-marker",
 						html: biz.image
-							?	`<div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+							? `<div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
 									<div style="width: 32px; height: 32px; border-radius: 50%; overflow: hidden; border: 2px solid white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); background-image:url('${biz.image}'); background-size: cover; background-position: center; background-color: #f97316;"></div>
 									<span style="background:rgba(0, 0, 0, 0.05); color: black; font-size: 10px; padding: 1px 4px; border-radius: 4px; max-width: 80px; overflow: hidden; text-oveflow: ellipsis; white-space: nowrap; text-align: center;">${biz.name}</span>
 								</div>`
-							: 	`<div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+							: `<div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
 									<div style="background: #f97316; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); font-size: 14px; font-weight: bold;">🏪</div>
 									<span style="background:rgba(0, 0, 0, 0.05); color: black; font-size: 10px; padding: 1px 4px; border-radius: 4px; max-width: 80px; overflow: hidden; text-oveflow: ellipsis; white-space: nowrap; text-align: center;">${biz.name}</span>
 								</div>`,
@@ -79,20 +94,28 @@ const BusinessMarkers = ({ businesses, center, onRecenter, favorites, onFavorite
 					<Popup>
 						<div className="min-w-[180px]">
 							<strong className="flex items-center gap-2 mt-2 text-sm text-gray-900" title="Comércio">
-                                {biz.name}
-                            </strong>
+								{biz.name}
+							</strong>
 							<p className="flex items-center gap-2 mt-2 text-sm text-gray-600" title="Categoria">
 								<Tag className="w-4 h-4" />
-                                {biz.category}
-                            </p>
-							{biz.distance !== null && biz.distance !== undefined && 
-                                <p className="flex items-center gap-2 mt-2 text-sm text-gray-600" title="Distância">
+								{biz.category}
+							</p>
+							{biz.distance !== null && biz.distance !== undefined && (
+								<p className="flex items-center gap-2 mt-2 text-sm text-gray-600" title="Distância">
 									<MapPinned className="w-4 h-4" />
-                                    {biz.distance.toFixed(2)} Km de distância
-                                </p>
-                            }
+									{biz.distance.toFixed(2)} Km de distância
+								</p>
+							)}
 							{biz.whatsapp && (
 								<a
+									onClick={() => {
+										api
+											.post("/api/metrics/click", {
+												businessId: biz.id,
+												sessionId: sessionId.current,
+											})
+											.catch(() => {});
+									}}
 									href={`https://wa.me/55${biz.whatsapp.replace(/\D/g, "")}`}
 									target="_blank"
 									rel="noopener noreferrer"
@@ -117,7 +140,7 @@ const BusinessMarkers = ({ businesses, center, onRecenter, favorites, onFavorite
 									)}
 									{favorites?.has(biz.id) ? "Favoritos" : "Favoritar"}
 								</button>
-							)}	
+							)}
 						</div>
 					</Popup>
 				</Marker>
@@ -157,25 +180,28 @@ const SourceMap = ({ favorites, onFavoriteToggle, initialCoords }) => {
 		}
 	}, [api]);
 
-    const fetchRef = useRef(null);
+	const fetchRef = useRef(null);
 	// Busca de Comércios Próximos
-	const fetchNearbyBusinesses = useCallback(async (lat, lon, radiusKm) => {
-		fetchRef.current?.abort();
-		const controller = new AbortController();
-		fetchRef.current = controller;
-		setLoadingBusinesses(true);
-		try {
-			const { data } = await api.get("/api/business/nearby", {
-				params: { lat, lon, radius: radiusKm },
-				signal: controller.signal,
-			});
-			if (data.success) setBusinesses(data.businesses);
-		} catch (error) {
-			if (error.name !== "CanceledError") setBusinesses([]);
-		} finally {
-			setLoadingBusinesses(false);
-		}
-	}, [api]);
+	const fetchNearbyBusinesses = useCallback(
+		async (lat, lon, radiusKm) => {
+			fetchRef.current?.abort();
+			const controller = new AbortController();
+			fetchRef.current = controller;
+			setLoadingBusinesses(true);
+			try {
+				const { data } = await api.get("/api/business/nearby", {
+					params: { lat, lon, radius: radiusKm },
+					signal: controller.signal,
+				});
+				if (data.success) setBusinesses(data.businesses);
+			} catch (error) {
+				if (error.name !== "CanceledError") setBusinesses([]);
+			} finally {
+				setLoadingBusinesses(false);
+			}
+		},
+		[api],
+	);
 
 	// Botão Tentar Localização ip
 	const handleAllowLocation = useCallback(async () => {
@@ -200,7 +226,7 @@ const SourceMap = ({ favorites, onFavoriteToggle, initialCoords }) => {
 		}
 	}, [getLocationByIp, fetchNearbyBusinesses, radius]);
 
-    useEffect(() => () => fetchRef.current?.abort(), []);
+	useEffect(() => () => fetchRef.current?.abort(), []);
 
 	useEffect(() => {
 		if (center) {
@@ -215,40 +241,43 @@ const SourceMap = ({ favorites, onFavoriteToggle, initialCoords }) => {
 		}
 	}, [center]);
 
-
 	const [localFavorites, setLocalFavorites] = useState(new Set());
 
 	// Função para add/rem favoritos no mapa Home
-	const handleLocalToggle = useCallback(async (businessId) => {
-		if (!isAuthenticated) {
-			infoToast("favorite-login", "Faça login para favoritar comércios");
-			return;
-		}
-
-		try {
-			if (localFavorites.has(businessId)) {
-				await api.delete(`/api/favorite/remove/${businessId}`);
-				setLocalFavorites(prev => { 
-					const n = new Set(prev); 
-					n.delete(businessId); 
-					return n; 
-				});
-			} else {
-				await api.post("/api/favorite/add", { businessId });
-				setLocalFavorites(prev => new Set(prev).add(businessId));
+	const handleLocalToggle = useCallback(
+		async (businessId) => {
+			if (!isAuthenticated) {
+				infoToast("favorite-login", "Faça login para favoritar comércios");
+				return;
 			}
-		} catch {
-			toast.error("Erro ao atualizar favorito");
-		}
-	}, [api, isAuthenticated, localFavorites]);
+
+			try {
+				if (localFavorites.has(businessId)) {
+					await api.delete(`/api/favorite/remove/${businessId}`);
+					setLocalFavorites((prev) => {
+						const n = new Set(prev);
+						n.delete(businessId);
+						return n;
+					});
+				} else {
+					await api.post("/api/favorite/add", { businessId });
+					setLocalFavorites((prev) => new Set(prev).add(businessId));
+				}
+			} catch {
+				toast.error("Erro ao atualizar favorito");
+			}
+		},
+		[api, isAuthenticated, localFavorites],
+	);
 
 	useEffect(() => {
 		if (onFavoriteToggle !== undefined) return;
 		if (!isAuthenticated) return;
 
-		api.get("/api/favorite/user")
+		api
+			.get("/api/favorite/user")
 			.then(({ data }) => {
-				if (data.success) setLocalFavorites(new Set(data.favorites.map(f => f.id)));
+				if (data.success) setLocalFavorites(new Set(data.favorites.map((f) => f.id)));
 			})
 			.catch(() => {});
 	}, [api, isAuthenticated, onFavoriteToggle]);
@@ -346,14 +375,7 @@ const SourceMap = ({ favorites, onFavoriteToggle, initialCoords }) => {
 				</div>
 
 				<div className="w-full h-[300px] sm:h-[450px] lg:h-[550px] rounded-2xl overflow-hidden shadow-md mt-4">
-					<MapContainer 
-						center={center} 
-						zoom={13} 
-						scrollWheelZoom={!isMobile} 
-						dragging={true} 
-						className="w-full h-full" 
-						aria-label="Mapa de comércios locais"
-					>
+					<MapContainer center={center} zoom={13} scrollWheelZoom={!isMobile} dragging={true} className="w-full h-full" aria-label="Mapa de comércios locais">
 						<MapController center={center} />
 
 						<TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -372,13 +394,7 @@ const SourceMap = ({ favorites, onFavoriteToggle, initialCoords }) => {
 							}}
 						/>
 
-						<BusinessMarkers 
-							businesses={filteredBusinesses} 
-							center={center} 
-							onRecenter={recenterFlag} 
-							favorites={resolvedFavorites} 
-							onFavoriteToggle={resolvedOnToggle}
-						/>
+						<BusinessMarkers businesses={filteredBusinesses} center={center} onRecenter={recenterFlag} favorites={resolvedFavorites} onFavoriteToggle={resolvedOnToggle} />
 					</MapContainer>
 				</div>
 			</div>

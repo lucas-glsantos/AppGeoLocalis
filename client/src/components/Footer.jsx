@@ -1,13 +1,9 @@
 import { assets } from "../assets/assets";
 import { Mail, Phone, Link, Users, Info } from "lucide-react";
-import { useApp } from "../controllers/AppContext";
-import { useTheme } from "../controllers/ThemeContext";
-
+  
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
-  const { api } = useApp();
-  const { darkMode, ThemeToggle } = useTheme();
 
   const categories = ["Tudo", "Tecnologia", "Startup", "Finanças", "Lifestyle"];
 

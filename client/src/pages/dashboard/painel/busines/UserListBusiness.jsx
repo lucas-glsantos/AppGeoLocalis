@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Store, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useApp } from "../../../../controllers/AppContext";
+import { useApp } from "@/controllers/AppContext";
 import BusinessTableItem from "./BusinessTableItem";
 import { useNavigate } from "react-router-dom";
 
@@ -57,7 +57,7 @@ const UserListBusiness = () => {
                         Seu Comércio
                     </h1>
                     <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
-                        {businesses.length} {businesses.length === 1 ? 'comércio' : 'comércios'}
+                        {businesses.length} {businesses.length === 1 ? 'comércios' : 'comércio'}
                     </span>
                 </div>
 

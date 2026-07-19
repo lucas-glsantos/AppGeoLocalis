@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import PostTableItem from "./painel/PostTableItem";
-import { useApp } from "../../controllers/AppContext";
+import PostTableItem from "./painel/customer/PostTableItem";
+import { useApp } from "@/controllers/AppContext";
 import toast from "react-hot-toast";
 import { FileDown, Archive, MessagesSquare, StickyNotes, Store } from "lucide-react";
 import { useNavigate } from "react-router-dom";

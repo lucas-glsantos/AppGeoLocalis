@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApp } from "../controllers/AppContext";
 import LocalMap from "../components/LocalMap";
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BusinessCard from "../components/BusinessCard";
 import { Loader2, List, Store, Search, X, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import { infoToast } from "../assets/infoToast";
+import { mainNavItems } from "./dashboard/PublicLayout";
+import PublicLayout from "./dashboard/PublicLayout";
 
 const Nearby = () => {
   const { api, isAuthenticated } = useApp();
@@ -110,8 +111,10 @@ const Nearby = () => {
 
   // Render
   return (
+    <PublicLayout
+      items={[...mainNavItems]}
+    >
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
@@ -205,6 +208,7 @@ const Nearby = () => {
       </main>
       <Footer />
     </div>
+    </PublicLayout>
   );
 };
 
