@@ -1,14 +1,17 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useApp } from "../../../../controllers/AppContext";
-import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
-import { Loader2, MapPin, Phone, Save, Smartphone, Store, Tag, Upload, X } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, MapPin, Phone, Save, Smartphone, Store, Tag, Upload, X } from "lucide-react";
+
+import { useParams, useNavigate } from "react-router-dom";
+import { useApp } from "@/controllers/AppContext";
+import toast from "react-hot-toast";
+
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 delete L.Icon.Default.prototype._getIconUrl;
+
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -328,17 +331,18 @@ const UserEditBusiness = () => {
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="w-auto p-4 sm:px-6 sm:py-4 border border-gray-800 dark:border-gray-400 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Salvar"
+                                aria-label="Salvar"
                             >
                                 {isSaving ? (
                                     <>
-                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        <Loader2 className="w-4 h-4 animate-spin" />
                                         Salvando...
                                     </>
                                 ) : (
                                     <>
-                                        <Save className="w-5 h-5" />
+                                        <Save className="w-4 h-4" />
                                         Salvar
                                     </>
                                 )}
@@ -348,10 +352,11 @@ const UserEditBusiness = () => {
                                 type="button"
                                 onClick={handleCancel}
                                 disabled={isSaving}
-                                className="w-auto p-4 sm:px-6 sm:py-4 border border-gray-800 dark:border-gray-400 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-colors font-semibold flex items-center justify-center gap-2"
+                                className="mt-5 px-6 py-3 bg-red-500 text-white dark:bg-red-600 dark:text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Cancelar"
+                                aria-label="Cancelar"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-4 h-4" />
                                 Cancelar
                             </button>
                         </div>

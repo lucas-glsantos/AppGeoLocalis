@@ -16,9 +16,10 @@ const Header = () => {
                         <span>Em Desenvolvimento</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-6">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-600 dark:from-sky-500 dark:to-blue-600">GeoLocalis</span><br/>Encontre comércios próximos a Você
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-3">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-700 dark:from-blue-700 dark:to-sky-500">GeoLocalis</span>
                     </h1>
+                    <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tight text-gray-900 dark:text-white mb-6">Encontre comércios próximos a Você</h3>
 
                     <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
                         Publique seu produto, negócios e ideias com a comunidade.

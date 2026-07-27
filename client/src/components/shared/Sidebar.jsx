@@ -68,9 +68,10 @@ const Sidebar = ({ collapsed, onToggle, items = [], children, overlay = false })
 			{!overlay && (
 				<div className="p-1 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
 					<button
-						onClick={onToggle}
 						className={`flex items-center gap-3 w-full py-2.5 text-sm text-blue-600 dark:text-blue-400 hover:text-gray-900 dark:hover:text-white bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 dark:text-blue-400 rounded-lg shadow-md font-semibold transition-all duration-200 cursor-pointer ${collapsed ? "justify-center px-0" : "justify-start px-3"}`}
-						aria-label={collapsed ? "Expandir Menu" : "Recolher Menu"}
+						aria-label={collapsed ? "Expandir" : "Recolher"}
+						title={collapsed ? "Expandir" : "Recolher"}
+						onClick={onToggle}
 					>
 						<PanelLeftClose className={`w-5 h-5 min-w-5 transition-transform duration-200 ${collapsed ? "rotate-180" : ""}`} />
 						<span className={`${collapsed ? "hidden" : "block"}`}>
