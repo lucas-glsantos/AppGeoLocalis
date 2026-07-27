@@ -1,8 +1,9 @@
 import { lazy, Suspense, memo } from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
-import { useApp } from "./controllers/AppContext";
 import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
+
+import { useApp } from "./controllers/AppContext";
 import LoadingScreen from "./components/shared/loader/LoadingScreen";
 
 // Rotas públicas

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useApp } from "../controllers/AppContext";
-import LocalMap from "../components/shared/maps/LocalMap";
-import BusinessCard from "../components/BusinessCardPage";
 import { Loader2, List, Store, Search, X, MapPin, RefreshCcw } from "lucide-react";
 import toast from "react-hot-toast";
-import { infoToast } from "../hooks/useInfoToast";
-import PublicLayout from "../components/layout/PublicLayout";
+
+import { useApp } from "@/controllers/AppContext";
+import LocalMap from "@/components/shared/maps/LocalMap";
+import BusinessCard from "@/components/BusinessCardPage";
+import PublicLayout from "@/components/layout/PublicLayout";
 import { map_categories } from "@/hooks/useCategory";
+import { infoToast } from "@/hooks/useInfoToast";
+
 
 
 const Nearby = () => {

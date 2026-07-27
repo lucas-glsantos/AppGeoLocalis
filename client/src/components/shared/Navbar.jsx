@@ -1,10 +1,9 @@
 import { assets } from "@/assets/assets";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { useTheme } from "@/context/theme/ThemeContext";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Sun, Moon, LayoutDashboard, LogIn, PanelLeftClose, House } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/useIsMobile";
-
 
 const Navbar = ({ collapsed, onToggle }) => {
 	const { darkMode, ThemeToggle } = useTheme();

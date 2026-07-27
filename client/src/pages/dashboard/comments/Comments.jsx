@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { useApp } from "@/controllers/AppContext";
 import CommentTableItem from "./CommentTableItem";
-import { useApp } from "../../../controllers/AppContext";
 import toast from "react-hot-toast";
 import { CheckCircle, Archive, Loader2, MessagesSquare } from "lucide-react";
 
