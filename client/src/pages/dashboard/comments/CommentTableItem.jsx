@@ -1,7 +1,7 @@
-import { useApp } from "../../../controllers/AppContext";
-import toast from "react-hot-toast";
+import { useState, useEffect, useCallback } from "react";
+import { useApp } from "@/controllers/AppContext";
 import { CheckCircle, Trash2, Calendar, User, MessageSquare, AlertTriangle, X, Archive, CircleFadingPlus, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import moment from "moment";
 
 
@@ -12,26 +12,36 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const CommentDate = moment(created_at).format("DD/MM/YYYY");
-
+    
     // Função Toggle Alternar Status comentário (Arquivado <-> Aprovado)
-    const toggleStatus = async () => {
-        if (isLoading) return;
-        setIsLoading(true);
-
+    const toggleStatus = useCallback(async () => {
         try {
+            setIsLoading(true);
+
             const { data } = await api.put(`/api/comment/toggle-status/${id}`);
+
             if (data.success) {
                 toast.success(data.message);
-                await fetchComments();
+                fetchComments();
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
+            if (error.name !== 'CanceledError') return;
             toast.error(error.response?.data?.message || error.message);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [api, id]);
+
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        fetchComments(controller.signal);
+
+        return () => controller.abort();
+    }, [fetchComments])
 
     // Função Deletar Comentário
     const deleteComment = async () => {

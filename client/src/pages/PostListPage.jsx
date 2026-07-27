@@ -1,9 +1,8 @@
 import { useMemo, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "../controllers/AppContext";
-import PostCard from "./PostCard";
-import { post_categories } from "../assets/assets";
-import { FileText, Loader2, ImageIcon, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { useApp } from "@/controllers/AppContext";
+import PostCard from "./PostCardPage";
+import { post_categories } from "@/hooks/useCategory";
+import { FileText, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 
 // Componente Principal (PostList)
@@ -44,21 +43,27 @@ const PostList = () => {
 
     const categoryMenu = (
         <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            {post_categories.map((cat) => (
-                <button
-                    key={cat}
-                    onClick={() => setMenu(cat === "Tudo" ? "All" : cat)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all min-h-[40px] ${
-                        menu === (cat === "Tudo" ? "All" : cat)
-                            ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                    aria-pressed={menu === (cat === "Tudo" ? "All" : cat)}
-                    aria-label={`Filtrar por ${cat}`}
-                >
-                    {cat}
-                </button>
-            ))}
+            {post_categories.map((category) => {
+                const value = category.name === "Tudo" ? "All" : category.name; 
+                
+                return (
+                    <button
+                        key={category.id}
+                        value={value}
+                        onClick={() => setMenu(value)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all min-h-[40px] 
+                            ${
+                                menu === value
+                                    ? category.color
+                                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            }`}
+                        aria-pressed={menu === value}
+                        aria-label={`Filtrar por ${category.name}`}
+                        title={`Filtrar por ${category.name}`}
+                    >
+                        {category.name}
+                    </button>
+            )})}
         </div>
     );
 
@@ -73,7 +78,7 @@ const PostList = () => {
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                             {loading ? (
                                 <span className="inline-flex items-center gap-2">
-                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
                                     Carregando...
                                 </span>
                             ) : filteredPosts.length === 0 ? (

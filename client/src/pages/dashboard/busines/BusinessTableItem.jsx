@@ -1,51 +1,29 @@
-import { useEffect, useState } from "react";
-import { useApp } from "@/controllers/AppContext";
+import { Trash2, MapPin, AlertTriangle, X, Edit3, Calendar, Tag, Phone, CircleFadingPlus, Loader2 } from "lucide-react";
 import moment from "moment";
 import toast from "react-hot-toast";
-import { Trash2, Archive, CheckCircle, Calendar, AlertTriangle, X, Edit3, Tag, CircleFadingPlus, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useApp } from "@/controllers/AppContext";
 import { useNavigate } from "react-router-dom";
 
 
-const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
-    const { api, fetchPosts: fetchPublicPosts } = useApp();
-    const { title, category, created_at, is_published, image } = post;
-
+const BusinessTableItem = ({ business, fetchBusinesses, index, isCard }) => {
+    const { api } = useApp();
+    const { name, category, whatsapp, is_active, image, latitude, longitude, created_at } = business;
+    
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const PostDate = moment(created_at).format("DD/MM/YYYY");
+    const BusinessDate = moment(created_at).format("DD/MM/YYYY");
     const navigate = useNavigate();
 
-    // Função Toggle para Alternar Status post (Arquivado <-> Publicado)
-    const togglePublish = async () => {
-        if (isLoading) return;
+    // Função Deletar Business
+    const deleteBusiness = async () => {
         setIsLoading(true);
 
         try {
-            const { data } = await api.put(`/api/post/toggle-publish/${post.id}`);
+            const { data } = await api.delete(`/api/business/${business.id}`);
             if (data.success) {
                 toast.success(data.message);
-                await fetchPosts();
-                await fetchPublicPosts();
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            toast.error(error.response?.data?.message || error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Função Deletar Post
-    const deletePost = async () => {
-        setIsLoading(true);
-
-        try {
-            const { data } = await api.delete(`/api/post/delete/${post.id}`);
-            if (data.success) {
-                toast.success(data.message);
-                await fetchPosts();
-                await fetchPublicPosts();
+                await fetchBusinesses();
             } else {
                 toast.error(data.message);
             }
@@ -69,34 +47,14 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
         return () => document.removeEventListener('click', handleClickOutside);
     }, [showDeleteModal]);
 
-    const getStatusPost = () => {
-        if (is_published)
-            return { label: "Publicado", style: "bg-green-200 text-green-500 dark:bg-green-500/30 dark:text-green-400" };
+    const getStatusBusiness = () => {
+        if (is_active)
+            return { label: "Ativo", style: "bg-green-200 text-green-500 dark:bg-green-500/30 dark:text-green-400" };
         else
-            return { label: "Arquivado", style: "bg-yellow-200 text-yellow-500 dark:bg-yellow-500/30 dark:text-yellow-400" };
+            return { label: "Inativo", style: "bg-gray-200 text-gray-500 dark:bg-gray-500/30 dark:text-gray-400" };
     };
 
-    const status = getStatusPost();
-    const isPublished = is_published;
-    const statusIcon = isPublished ? Archive : CheckCircle;
-    const statusLabel = isPublished ? "Arquivar" : "Publicar";
-
-    const StatusIcon = statusIcon;
-
-    const actionBtn = (
-        <button
-            onClick={togglePublish}
-            disabled={isLoading}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isPublished
-                ? "hover:bg-yellow-600 hover:text-white hover:border-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white dark:hover:border-yellow-600"
-                : "hover:bg-green-600 hover:text-white hover:border-green-600 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600"
-            }`}
-            title={statusLabel}
-        >
-            <StatusIcon className="w-4 h-4" />
-            {statusLabel}
-        </button>
-    )
+    const status = getStatusBusiness();
 
     const DeleteModal = () => (
         showDeleteModal && (
@@ -121,7 +79,7 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                     </div>
 
                     <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        Excluir post <span className="font-medium text-gray-900 dark:text-white">"{title}"?</span> Esta ação não pode ser desfeita.
+                        Excluir comércio <span className="font-medium text-gray-900 dark:text-white">"{name}"?</span> Esta ação não pode ser desfeita.
                     </p>
 
                     <div className="flex justify-end gap-3">
@@ -134,7 +92,7 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                         </button>
 
                         <button
-                            onClick={deletePost}
+                            onClick={deleteBusiness}
                             disabled={isLoading}
                             className="px-4 py-2 gap-2 flex items-center text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -165,26 +123,39 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                         {image &&
                             <img
                                 src={image}
-                                alt={title}
+                                alt={name}
                                 className="w-16 h-16 rounded-xl object-cover"
                                 title="Imagem"
                             />
                         }
                         <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 dark:text-white truncate" title="Título">
-                                {title}
+                            <h3 className="font-semibold text-gray-900 dark:text-white truncate" title="Comércio">
+                                {name}
                             </h3>
 
                             <div className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400" title="Data">
                                 <Calendar className="w-4 h-4" />
-                                {PostDate}
+                                {BusinessDate}
                             </div>
 
                             <p className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400" title="Categoria">
                                 <Tag className="w-4 h-4" />
                                 {category}
                             </p>
-
+                            {whatsapp &&
+                                <p className="mt-2">
+                                    <a
+                                        href={`https://wa.me/55${whatsapp.replace(/\D/g, '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-xs hover:underline cursor-pointer text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-500 transition-colors"
+                                        title="WhatsApp"
+                                    >
+                                        <Phone className="w-4 h-4" />
+                                        <span className="font-medium">{whatsapp}</span>
+                                    </a>
+                                </p>
+                            }
                             <p className="text-xs flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-400" title="Status">
                                 <CircleFadingPlus className="w-4 h-4" />
                                 Status:
@@ -194,24 +165,32 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                             </p>
                         </div>
                     </div>
-
                     <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <button
-                            onClick={() => navigate(`/dashboard/edit-post/${post.id}`)}
-                            disabled={isLoading}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => navigate(`/dashboard/edit-business/${business.id}`)}
+                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors"
                             title="Editar"
                         >
                             <Edit3 className="w-4 h-4" />
                             Editar
                         </button>
 
-                        {actionBtn}
+                        <a
+                            href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors"
+                            title="Ver no Mapa"
+                        >
+                            <MapPin className="w-4 h-4" />
+                            Mapa
+
+                        </a>
 
                         <button
                             onClick={() => setShowDeleteModal(true)}
                             disabled={isLoading}
-                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600 transition-colors"
                             title="Excluir"
                         >
                             <Trash2 className="w-4 h-4" />
@@ -235,24 +214,39 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                         {image &&
                             <img
                                 src={image}
-                                alt={title}
+                                alt=""
                                 className="w-10 h-10 rounded-lg object-cover"
                                 title="Imagem"
                             />
                         }
-                        <span className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-xs" title="Título">
-                            {title}
+                        <span className="font-medium text-gray-800 dark:text-gray-200 truncate max-w-xs" title="Comércio">
+                            {name}
                         </span>
                     </div>
                 </td>
-                <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-2" title="Data">
+                <td className="px-6 py-4 text-gray-500 dark:text-gray-400" title="Data">
+                    <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
-                        {PostDate}
+                        {BusinessDate}
                     </div>
                 </td>
                 <td className="px-6 py-4 text-gray-500 dark:text-gray-400" title="Categoria">
                     {category}
+                </td>
+                <td className="px-6 py-4">
+                    {whatsapp ?
+                        <a
+                            href={`https://wa.me/55${whatsapp.replace(/\D/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-600 dark:text-gray-400 hover:underline cursor-pointer text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-500 transition-colors"
+                            title="WhatsApp"
+                        >
+                            {whatsapp}
+                        </a>
+                        :
+                        '-'
+                    }
                 </td>
                 <td className="px-6 py-4">
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${status.style}`} title="Status">
@@ -262,25 +256,22 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                         <button
-                            onClick={() => navigate(`/dashboard/edit-post/${post.id}`)}
-                            disabled={isLoading}
+                            onClick={() => navigate(`/dashboard/edit-business/${business.id}`)}
                             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Editar"
                         >
                             <Edit3 className="w-4 h-4" />
                         </button>
 
-                        <button
-                            onClick={togglePublish}
-                            disabled={isLoading}
-                            className={`p-2 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isPublished
-                                ? "hover:bg-yellow-600 hover:text-white hover:border-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white dark:hover:border-yellow-600"
-                                : "hover:bg-green-600 hover:text-white hover:border-green-600 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600"
-                            }`}
-                            title={statusLabel}
+                        <a
+                            href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Ver no mapa"
                         >
-                            <StatusIcon className="w-4 h-4" />
-                        </button>
+                            <MapPin className="w-4 h-4" />
+                        </a>
 
                         <button
                             onClick={() => setShowDeleteModal(true)}
@@ -295,6 +286,7 @@ const PostTableItem = ({ post, fetchPosts, index, isCard }) => {
             </tr>
         </>
     );
-};
+}
 
-export default PostTableItem;
+
+export default BusinessTableItem;

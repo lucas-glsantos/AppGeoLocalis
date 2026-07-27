@@ -1,17 +1,18 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { assets } from "../assets/assets";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { useApp } from "../controllers/AppContext";
+import { assets } from "@/assets/assets";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import { useApp } from "@/controllers/AppContext";
 import toast from "react-hot-toast";
-import { Calendar, User, MessageSquare, Send, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { Calendar, User, MessageSquare, Send, ArrowLeft, Image as ImageIcon, Tag } from "lucide-react";
 import moment from "moment";
+import { post_categories } from "@/hooks/useCategory";
 
-const Post = (post) => {
+const PostPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { api, user, isAuthenticated, isLoaded, logout } = useApp();
+    const { api, user, isAuthenticated } = useApp();
 
     const [data, setData] = useState(null);
     const [comments, setComments] = useState([]);
@@ -21,9 +22,6 @@ const Post = (post) => {
     const cancelledRef = useRef(false);
     const abortControllerRef = useRef(null);
 
-    const { created_at } = post;
-
-    const datePost = moment(created_at).format("DD/MM/YYYY");
 
     const fetchPostData = useCallback(async (signal) => {
             try {
@@ -41,7 +39,7 @@ const Post = (post) => {
                 console.error("Post error:", error);
                 return null;
             }
-    }, [id]);
+    }, [api, id]);
 
     const fetchComments = useCallback(async (signal) => {
             try {
@@ -57,7 +55,7 @@ const Post = (post) => {
                 console.error("Comments error:", error);
                 return [];
             }
-    }, [id]);
+    }, [api, id]);
 
     useEffect(() => {
         cancelledRef.current = false;
@@ -130,7 +128,7 @@ const Post = (post) => {
         } finally {
             setIsSubmitting(false);
         };
-    }, [id, user, isAuthenticated, content, isSubmitting, navigate]);
+    }, [api, id, user, isAuthenticated, content, isSubmitting, navigate]);
 
     if (loading || !data) {
         return (
@@ -145,16 +143,13 @@ const Post = (post) => {
         );
     }
 
+    const datePost = moment(data.created_at).format("DD/MM/YYYY");
     const isLoggedIn = isAuthenticated;
 
-    const categoryColors = {
-        "Tudo": "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-        "Startup": "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-        "Tecnologia": "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-        "Finanças": "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-        "Lifestyle": "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    };
-    const colorClass = categoryColors[data.category];
+    // Define a cor da categoria
+    const category = post_categories.find(
+        category => category.name === data.category
+    );
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -163,7 +158,7 @@ const Post = (post) => {
             <article className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
                 <button 
                     onClick={() => navigate("/")}
-                    className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 transition-colors"
+                    className="mt-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all inline-flex items-center gap-2 mb-8 font-medium min-h-[48px]"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Voltar
@@ -171,38 +166,55 @@ const Post = (post) => {
 
                 <header className="mb-10 text-center sm:text-left">
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        <span className="inline-flex items-center gap-1">
+                        <span 
+                            title={`Postado em: ${datePost}`}
+                            className="inline-flex py-2 gap-1 text-sm font-medium"
+                        >
                             <Calendar className="w-4 h-4" />
                             {datePost}
                         </span>
+
+                        <span 
+                            title={category.name}
+                            className="inline-flex py-2 gap-1 text-sm font-medium"
+                        >
+                            <Tag className="w-4 h-4" />
+                            {category.name}
+                        </span>
+
                         {data.author_name && (
-                            <span className="inline-flex items-center gap-1">
+                            <span 
+                                title={`Por: ${data.author_name}`}
+                                className="inline-flex py-2 gap-1 text-sm font-medium"
+                            >
                                 <User className="w-4 h-4" />
                                 Por: <span className="font-medium">{data.author_name}</span>
                             </span>
                         )}
                     </div>
                     
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                    <h1 
+                       title={data.title}
+                       className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight"
+                    >
                         {data.title}
                     </h1>
                     
                     {data.sub_title && (
-                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                        <p
+                            title={data.sub_title}
+                            className="text-lg text-gray-600 dark:text-gray-400 mb-6"
+                        >
                             {data.sub_title}
                         </p>
                     )}
-                    
-                    <span className={`inline-block px-4 py-1.5 text-sm font-medium rounded-full ${colorClass}`}>
-                        {data.category}
-                    </span>
                 </header>
 
                 {data.image ? (
-                    <figure className="mb-12 rounded-2xl overflow-hidden shadow-lg">
+                    <figure className="mb-12 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-700 shadow-lg">
                         <img 
                             src={data.image} 
-                            alt={data.title} 
+                            alt={data.title}
                             className="w-full" 
                         />
                     </figure>
@@ -212,16 +224,20 @@ const Post = (post) => {
                     </figure>
                 )}
 
-                <div 
-                    className="prose-content max-w-none mb-16 text-gray-700 dark:text-gray-300 leading-relaxed space-y-4 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h1]:dark:text-white [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-gray-900 [&_h2]:dark:text-white [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-gray-900 [&_h3]:dark:text-white [&_p]:text-gray-600 [&_p]:dark:text-gray-300 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:underline [&_strong]:font-semibold [&_strong]:text-gray-900 [&_strong]:dark:text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-gray-600 [&_ul]:dark:text-gray-300 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:text-gray-600 [&_ol]:dark:text-gray-300 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:dark:border-gray-600 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_blockquote]:dark:text-gray-400 [&_code]:bg-gray-100 [&_code]:dark:bg-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm"
-                    dangerouslySetInnerHTML={{ __html: data.description }}
-                />
+                <section className="mb-12 bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-300 dark:border-gray-700">
 
-                <section className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div
+                        title="Descrição"
+                        className="prose-content max-w-none mb-16 text-gray-700 dark:text-gray-300 leading-relaxed space-y-4 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-900 [&_h1]:dark:text-white [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-gray-900 [&_h2]:dark:text-white [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-gray-900 [&_h3]:dark:text-white [&_p]:text-gray-600 [&_p]:dark:text-gray-300 [&_a]:text-blue-600 [&_a]:dark:text-blue-400 [&_a]:underline [&_strong]:font-semibold [&_strong]:text-gray-900 [&_strong]:dark:text-white [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:text-gray-600 [&_ul]:dark:text-gray-300 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:text-gray-600 [&_ol]:dark:text-gray-300 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:dark:border-gray-600 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_blockquote]:dark:text-gray-400 [&_code]:bg-gray-100 [&_code]:dark:bg-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm"
+                        dangerouslySetInnerHTML={{ __html: data.description }}
+                    />
+                </section>
+
+                <section className="mb-12 bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-300 dark:border-gray-700">
                     <div className="flex items-center gap-3 mb-8">
                         <MessageSquare className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                         <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
-                            Comentários ({comments.length})
+                            {comments.length} Comentários
                         </h2>
                     </div>
                     
@@ -270,7 +286,7 @@ const Post = (post) => {
                                         <img 
                                             src={user.image} 
                                             alt={user.name} 
-                                            className="w-10 h-10 rounded-full" 
+                                            className="w-10 h-10 rounded-full pointer-events-none" 
                                         />
                                     )}
                                     <span>Comentar como: <span className="font-medium text-gray-900 dark:text-white">{user.name}</span></span>
@@ -300,21 +316,22 @@ const Post = (post) => {
                             )}
                             
                             <textarea 
-                                placeholder="Seu comentário"
+                                placeholder="Adicione um comentário..."
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
                                 required
                                 disabled={!isLoggedIn}
-                                className="w-full px-4 py-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 h-32 disabled:bg-gray-100 dark:disabled:bg-gray-800 resize-none transition-all"
+                                className="w-full px-4 py-4 rounded-lg border border-gray-300 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 h-15 resize-none transition-all"
                             />
                             <button 
                                 type="submit"
                                 disabled={!isLoggedIn}
-                                className={`px-6 py-3 font-medium rounded-xl transition-all inline-flex items-center gap-2 ${
+                                className={`px-6 py-3 font-medium rounded-full shadow-lg transition-all inline-flex items-center gap-2 ${
                                     isLoggedIn 
                                         ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90" 
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
                                 }`}
+                                title={isLoggedIn ? "Enviar" : "Enviando" }
                             >
                                 <Send className="w-4 h-4" />
                                 {isLoggedIn ? "Enviar" : "Faça login para comentar"}
@@ -323,10 +340,9 @@ const Post = (post) => {
                     </form>
                 </section>
             </article>
-            
             <Footer />
         </div>
     );
 };
 
-export default Post;
+export default PostPage;

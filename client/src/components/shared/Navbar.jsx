@@ -1,13 +1,19 @@
-import { assets } from "../assets/assets";
+import { assets } from "@/assets/assets";
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-import { useTheme } from "../controllers/ThemeContext";
-import { Sun, Moon, Menu, X, LayoutDashboard, LogIn, PanelLeftClose } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/context/theme/ThemeContext";
+import { Sun, Moon, LayoutDashboard, LogIn, PanelLeftClose, House } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 
 const Navbar = ({ collapsed, onToggle }) => {
 	const { darkMode, ThemeToggle } = useTheme();
 	const navigate = useNavigate();
+	const location = useLocation();
+	const isMobile = useIsMobile();
+
+	// Lógica de alterância contextual
+	const isDashboard = location.pathname.startsWith("/dashboard");
 
 	// Theme Toggle
 	const ThemeMode = () => (
@@ -22,6 +28,21 @@ const Navbar = ({ collapsed, onToggle }) => {
 				: <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
 			}
 		</button>
+	);
+
+	// Responsive botton Home
+	const HomeBtn = ({ full }) => (
+		<button 
+        	onClick={() => navigate("/")} 
+        	className={`flex items-center gap-2 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition min-h-[44px] ${full ? "w-full justify-center" : ""}`}
+        	aria-label="Voltar para home"
+			title="Home"
+    	>
+        	<House className="w-4 h-4" />
+        	<span className="hidden sm:inline">
+				Voltar
+			</span>
+    	</button>
 	);
 
 	// Responsive botton Dashboard
@@ -62,18 +83,15 @@ const Navbar = ({ collapsed, onToggle }) => {
 					<div className="flex justify-between items-center h-16">
 						<div className="flex items-center gap-3">
 							{/* Controle do Menu (Mobile) */}
-							{(
+							{isMobile && (
 								<button
-									onClick={onToggle}
-									className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
-									aria-label={collapsed ? "Abrir Menu" : "Fechar Menu"}
-								>
-									{collapsed ? (
-										<Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-									): (
-										<X className="w-6 h-6 text-gray-600 dark:text-gray-300 hover:text-red-500" />
-									)}
-								</button>
+								className="p-2.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+								aria-label={collapsed ? "Expandir" : "Recolher"}
+								title={collapsed ? "Expandir" : "Recolher"}
+								onClick={onToggle}
+							>
+								<PanelLeftClose className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ease-in-out ${collapsed ? "rotate-180" : ""}`} />
+							</button>
 							)}
 							<img 
 								onClick={() => navigate("/")} 
@@ -90,7 +108,7 @@ const Navbar = ({ collapsed, onToggle }) => {
 
 							<SignedIn>
 								<div className="flex items-center gap-3">
-									<DashboardBtn />
+									{isDashboard ? <HomeBtn /> : <DashboardBtn />}
 									<UserButton afterSignOutUrl="/" />
 								</div>
 							</SignedIn>

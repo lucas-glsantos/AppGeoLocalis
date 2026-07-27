@@ -1,25 +1,22 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/shared/Sidebar";
+import Navbar from "@/components/shared/Navbar";
 import { BarChart3, Store, MessagesSquare, StickyNotes, StickyNotePlus, LayoutDashboard } from "lucide-react";
-// import { UserButton } from "@clerk/clerk-react";
-// import { assets } from "../../assets/assets";
-
 
 // Array de Rotas Dashboard
-const dashNavItems = [
+export const dashNavItems = [
 	{ to: "/dashboard", icon: LayoutDashboard, label: "Dashboard", end: true },
 	{ to: "/dashboard/add-post", icon: StickyNotePlus, label: "Criar Post" },
 	{ to: "/dashboard/list-post", icon: StickyNotes, label: "Meus Posts" },
 	{ to: "/dashboard/list-comment", icon: MessagesSquare, label: "Comentários" },
-	{ to: "/dashboard/list-business", icon: Store, label: "Meus Comércios" },
+	{ to: "/dashboard/list-business", icon: Store, label: "Meu Comércio" },
 	{ to: "/dashboard/metrics", icon: BarChart3, label: "Métricas" },
 	//{ to: "/dashboard/add-business", icon: Briefcase, label: "Criar Comércio" },
 ];
 
 const Layout = () => {
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Inicia Fechado
     const handleToggle = () => setSidebarCollapsed(prev => !prev);
 
     return (

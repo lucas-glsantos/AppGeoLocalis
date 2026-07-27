@@ -1,4 +1,5 @@
-import { assets, post_categories } from "../assets/assets";
+import { assets } from "@/assets/assets";
+import { post_categories } from "@/hooks/useCategory";
 import { Mail, Phone, Link, Users, Info } from "lucide-react";
   
 const Footer = () => {
@@ -89,16 +90,19 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">Categorias</h3>
             <ul className="space-y-3">
-              {post_categories.map((item, index) => (
-                <li key={index}>
+              {post_categories.map(category => (
+                <li 
+                  key={category.id}
+                  value={category.name}
+                >
                   <a
-                    href={item}
-                    aria-label={item}
-                    title={item}
+                    href={category.id}
+                    aria-label={category.name}
+                    title={category.name}
                     className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1"
                   >
                     <Link className="w-4 h-4" />
-                    {item}
+                    {category.name}
                   </a>
                 </li>
               ))}

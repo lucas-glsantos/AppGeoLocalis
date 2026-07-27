@@ -1,5 +1,5 @@
 import { useApp } from "../controllers/AppContext";
-import PostCard from "./PostCard";
+import PostCard from "../pages/PostCardPage";
 import { Search, X, FileText, User } from "lucide-react";
 import { useRef } from "react";
 

@@ -2,7 +2,7 @@ import { MapContainer, useMap, TileLayer, Marker, Popup, Circle } from "react-le
 import { useEffect, useState, useRef } from "react";
 import { Loader2, Tag, MapPinned, Phone, Star } from "lucide-react";
 
-import { useApp } from "../controllers/AppContext";
+import { useApp } from "../../../controllers/AppContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 import "leaflet/dist/leaflet.css";
@@ -26,7 +26,6 @@ const MapController = ({ center }) => {
 
 // Subcomponente para renderizar marcadores de cómercios próximos
 const BusinessMarkers = ({ businesses, favorites, onFavoriteToggle }) => {
-	const map = useMap();
 	const { api } = useApp();
 	const sessionId = useRef(localStorage.getItem("metrics_sid") || crypto.randomUUID());
 	const [isLoading, setIsLoading] = useState(null);
@@ -134,6 +133,10 @@ const BusinessMarkers = ({ businesses, favorites, onFavoriteToggle }) => {
 
 const SourceMap = ({ center, businesses, favorites, onFavoriteToggle }) => {
 	const isMobile = useIsMobile();
+
+	useEffect(() => {
+		document.querySelector('.leaflet-container')?.style.setProperty('isolation', 'isolate');
+	}, []);
 
 	return (
 		<div className="w-full h-full">

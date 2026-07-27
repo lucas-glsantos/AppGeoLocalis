@@ -1,5 +1,5 @@
-import { useApp } from "../controllers/AppContext";
-import { useTheme } from "../controllers/ThemeContext";
+import { useApp } from "../../controllers/AppContext";
+import { useTheme } from "../../context/theme/ThemeContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SignIn, SignUp } from "@clerk/clerk-react";

@@ -87,7 +87,7 @@ const Comments = () => {
 
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                     </div>
                 ) : filteredComments.length === 0 ? (
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-300 dark:border-gray-700">

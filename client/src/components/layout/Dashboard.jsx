@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import PostTableItem from "./painel/customer/PostTableItem";
+import PostTableItem from "@/pages/dashboard/customer/PostTableItem";
 import { useApp } from "@/controllers/AppContext";
 import toast from "react-hot-toast";
-import { FileDown, Archive, MessagesSquare, StickyNotes, Store } from "lucide-react";
+import { FileDown, Archive, MessagesSquare, StickyNotes, Store, LayoutDashboard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from "../shared/loader/LoadingScreen";
 
 const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState({
@@ -15,9 +16,9 @@ const Dashboard = () => {
         recentPosts: [],
     });
 
-    const navigate = useNavigate();
-
     const { api } = useApp();
+    const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate();
 
     const fetchDashboard = async () => {
         try {
@@ -25,6 +26,8 @@ const Dashboard = () => {
             data.success ? setDashboardData(data.dashboardData) : toast.error(data.message);
         } catch (error) {
             toast.error(error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -32,10 +35,28 @@ const Dashboard = () => {
         fetchDashboard();
     }, []);
 
+
     return (
-        <div className="flex-1 p-4 md:p-10 bg-gray-100 dark:bg-gray-800/30">
+        <div className="flex-1 p-4 sm:p-6 bg-gray-50 dark:bg-gray-900">
+            <div className="flex items-center gap-3 mb-6">
+                <LayoutDashboard className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    Dashboard
+                </h1>
+            </div>
+
+            {isLoading ? (
+                <LoadingScreen />
+            ) : (
+                <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 hover:scale-105 transition-all">
+                <div 
+                    className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 transition-all"
+                    onClick={() => navigate("/dashboard/list-post")}
+                    title="Posts publicados"
+                    aria-label="Posts publicados"
+                >
+                    
                     <StickyNotes className="w-8 h-8" />
                     <div>
                         <p className="text-xl font-semibold text-gray-600 dark:text-gray-200">{dashboardData.posts}</p>
@@ -43,7 +64,13 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 hover:scale-105 transition-all">
+                <div 
+                    className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 transition-all"
+                    onClick={() => navigate("/dashboard/list-comment")}
+                    title="Comentários"
+                    aria-label="Comentários"    
+                >
+                    
                     <MessagesSquare className="w-8 h-8" />
                     <div>
                         <p className="text-xl font-semibold text-gray-600 dark:text-gray-200">{dashboardData.comments}</p>
@@ -51,7 +78,12 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 hover:scale-105 transition-all">
+                <div 
+                    className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 transition-all"
+                    onClick={() => navigate("/dashboard/list-post")}
+                    title="Posts arquivados"
+                    aria-label="Posts arquivados"
+                >
                     <Archive className="w-8 h-8" />
                     <div>
                         <p className="text-xl font-semibold text-gray-600 dark:text-gray-200">{dashboardData.drafts}</p>
@@ -60,7 +92,7 @@ const Dashboard = () => {
                 </div>
 
                 <div 
-                    className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 hover:scale-105 transition-all"
+                    className="flex items-center gap-4 p-4 min-w-58 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-xl shadow cursor-pointer hover:bg-blue-300 hover:border-blue-600 dark:hover:bg-blue-900/30 dark:hover:border-blue-600 transition-all"
                     onClick={() => navigate("/dashboard/list-business")}
                     title="Ver Comércios"
                 >
@@ -72,7 +104,6 @@ const Dashboard = () => {
                         <p className="text-gray-600 dark:text-gray-300 font-semibold">Comércio</p>
                     </div> 
                 </div>
-
             </div>
 
             <div>
@@ -103,6 +134,10 @@ const Dashboard = () => {
                     </table>
                 </div>
             </div>
+            </>
+            )}
+
+
         </div>
     );
 };

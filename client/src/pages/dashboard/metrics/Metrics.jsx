@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/controllers/AppContext";
-import { Eye, MousePointerClick, PhoneCall, TrendingUp, Store, Loader2, BarChart3, Info } from "lucide-react";
+import { Eye, MousePointerClick, PhoneCall, TrendingUp, Store, BarChart3, Info } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import LoadingScreen from "@/components/shared/loader/LoadingScreen";
+
 
 const Metrics = () => {
 	const { api } = useApp();
 	const [metrics, setMetrics] = useState(null);
-
 	const [isLoading, setIsLoading] = useState(true);
+	
 	const cancelledRef = useRef(false);
 	const abortControllerRef = useRef(null);
 	const navigate = useNavigate();
@@ -70,31 +72,25 @@ const Metrics = () => {
 				</div>
 
 				{isLoading ? (
-					<div className="flex items-center justify-center py-20">
-						<Loader2 className="w-8 h-8 text-gray-400 animate-spin" aria-label="Carregando métricas..." />
-					</div>
+					<LoadingScreen />
 				) : !businessCount ? (
-					/* Empty State */
-					<div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-300 dark:border-gray-700">
+					<div className="bg-white dark:bg-gray-800 rounded-2xl p-8 justify-items-center text-center shadow-lg border border-gray-300 dark:border-gray-700">
 						<BarChart3 className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" aria-hidden="true" />
 						<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
 							Nenhum dado disponível
 						</h2>
 						<p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-6">
-							Cadastre seu comércio e gerencie seu Impacto Social!
+							Cadastre seu comércio e gerencie seu Impacto Social.
 						</p>
-
-						<div className="flex gap-3 justify-center">
-							<button
-								onClick={() => navigate("/dashboard/add-business")}
-								className="w-auto p-4 sm:px-6 sm:py-4 border border-gray-800 dark:border-gray-400 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors font-medium flex items-center justify-center gap-2"
-								title="Cadastar Comércio"
-								aria-label="Cadastrar Comércio"
-							>
-								<Store className="w-4 h-4" />
-								Cadastrar
-							</button>
-						</div>
+						<button
+							onClick={() => navigate("/dashboard/add-business")}
+							className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px]"
+							title="Cadastar Comércio"
+							aria-label="Cadastrar Comércio"
+						>
+							<Store className="w-4 h-4" />
+							Cadastrar
+						</button>
 					</div>
 				) : (
 					<>
