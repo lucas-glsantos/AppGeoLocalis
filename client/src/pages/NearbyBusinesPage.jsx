@@ -6,7 +6,7 @@ import { useApp } from "@/controllers/AppContext";
 import LocalMap from "@/components/shared/maps/LocalMap";
 import BusinessCard from "@/components/BusinessCardPage";
 import PublicLayout from "@/components/layout/PublicLayout";
-import { map_categories } from "@/hooks/useCategory";
+import { business_categories } from "@/hooks/useCategory";
 import { infoToast } from "@/hooks/useInfoToast";
 
 
@@ -219,7 +219,7 @@ const Nearby = () => {
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="px-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  { (map_categories || []).map((categories) => (
+                  { (business_categories || []).map((categories) => (
                     <option key={categories} value={categories}>
                       {categories}
                     </option>
