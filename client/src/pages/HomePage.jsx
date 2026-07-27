@@ -1,9 +1,9 @@
-import Header from "../components/shared/Header";
-import SearchPost from "../components/SearchPost";
+import Header from "@/components/shared/Header";
+import SearchPost from "@/components/SearchPost";
 import PostList from "./PostListPage";
-import Footer from "../components/shared/Footer";
-import PublicLayout, { mainNavItems } from "../components/layout/PublicLayout";
-import { useApp } from "../controllers/AppContext";
+import Footer from "@/components/shared/Footer";
+import PublicLayout, { mainNavItems } from "@/components/layout/PublicLayout";
+import { useApp } from "@/controllers/AppContext";
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 

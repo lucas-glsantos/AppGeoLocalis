@@ -2,7 +2,7 @@ import { MapContainer, useMap, TileLayer, Marker, Popup, Circle } from "react-le
 import { useEffect, useState, useRef } from "react";
 import { Loader2, Tag, MapPinned, Phone, Star } from "lucide-react";
 
-import { useApp } from "../../../controllers/AppContext";
+import { useApp } from "@/controllers/AppContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 import "leaflet/dist/leaflet.css";
