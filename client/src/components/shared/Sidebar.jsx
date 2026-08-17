@@ -1,13 +1,13 @@
 import { NavLink } from "react-router-dom";
-import {  PanelLeftClose } from "lucide-react";
+import {  PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const linkClass = ({ isActive }) => `
-    flex items-center gap-3 py-3 px-4 cursor-pointer transition-all duration-200 min-h-[48px] rounded-lg
+    flex items-center gap-3 py-3 px-4 cursor-pointer transition-all duration-200 min-h-[48px] rounded-lg border-l-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500
     ${
 		isActive
-			? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 text-blue-600 dark:text-blue-400 font-semibold"
-			: "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50"
+			? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold"
+			: "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50"
 	}
 `;
 
@@ -42,11 +42,10 @@ const Sidebar = ({ collapsed, onToggle, items = [], children, overlay = false })
 							to={item.to} 
 							className={linkClass} 
 							aria-label={item.label}
-							title={item.label}
 							onClick={() => isMobile && onToggle()}
 						>
 							<item.icon className="w-5 h-5 min-w-5" />
-							<span className={`${collapsed && !isMobile && !overlay ? "hidden" : "block"} text-sm transition-opacity duration-200`}>
+							<span className={`${collapsed && !isMobile && !overlay ? "hidden" : "block"} text-sm transition-opacity duration-300`}>
 								{item.label}
 							</span>
 						</NavLink>
@@ -68,12 +67,17 @@ const Sidebar = ({ collapsed, onToggle, items = [], children, overlay = false })
 			{!overlay && (
 				<div className="p-1 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
 					<button
-						className={`flex items-center gap-3 w-full py-2.5 text-sm text-blue-600 dark:text-blue-400 hover:text-gray-900 dark:hover:text-white bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 dark:text-blue-400 rounded-lg shadow-md font-semibold transition-all duration-200 cursor-pointer ${collapsed ? "justify-center px-0" : "justify-start px-3"}`}
+						className={`flex items-center gap-3 w-full min-h-[48px] text-sm text-blue-600 dark:text-blue-400 hover:text-gray-900 dark:hover:text-white bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600 rounded-lg shadow-md font-semibold transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${collapsed ? "justify-center px-0" : "justify-start px-3"}`}
 						aria-label={collapsed ? "Expandir" : "Recolher"}
+						aria-expanded={!collapsed}
 						title={collapsed ? "Expandir" : "Recolher"}
 						onClick={onToggle}
 					>
-						<PanelLeftClose className={`w-5 h-5 min-w-5 transition-transform duration-200 ${collapsed ? "rotate-180" : ""}`} />
+						{collapsed
+							? <PanelLeftOpen className="w-5 h-5 min-w-5 transition-opacity duration-200" />
+							: <PanelLeftClose className="w-5 h-5 min-w-5 transition-opacity duration-200" />
+						}
+						
 						<span className={`${collapsed ? "hidden" : "block"}`}>
 							Recolher
 						</span>

@@ -57,4 +57,60 @@ const category = post_categories.find(
 */
 
 
-export const business_categories = ["Tudo", "Tecnologia", "Startup", "Finanças", "Consultoria", "Lifestyle", "Educação", "Moda", "Saúde", "Serviços", "Outro"];
+export const business_categories = [
+        {
+                id: "tudo",
+                name: "Tudo",
+                color: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+        }, 
+        {
+                id: "tecnologia",
+                name: "Tecnologia",
+                color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+        }, 
+        {
+                id: "startup",
+                name: "Startup",
+                color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+        }, 
+        {
+                id: "finanças",
+                name: "Finanças",
+                color: "",
+        }, 
+        {
+                id: "consultoria",
+                name: "Consultoria",
+                color: "",
+        }, 
+        {
+                id: "lifestyle",
+                name: "Lifestyle",
+                color: "",
+        }, 
+        {
+                id: "educação",
+                name: "Educação",
+                color: "",
+        }, 
+        {
+                id: "moda",
+                name: "Moda",
+                color: "",
+        }, 
+        {
+                id: "saúde",
+                name: "Saúde",
+                color: "",
+        }, 
+        {
+                id: "serviços",
+                name: "Serviços",
+                color: "",
+        }, 
+        {
+                id: "outro",
+                name: "Outro",
+                color: "",
+        }
+];

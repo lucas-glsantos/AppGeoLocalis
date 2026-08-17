@@ -20,7 +20,7 @@ async function createMetricsTable() {
             ON metrics_events(business_id, event_type, created_at)
         `);
 
-		console.log("Tabela e índices metrics_events criada/verificada");
+		console.log("Tabela índices e metrics_events criada/verificada");
 	} catch (error) {
 		console.error("Erro ao criar tabela metrics_events:", error);
 		throw error;

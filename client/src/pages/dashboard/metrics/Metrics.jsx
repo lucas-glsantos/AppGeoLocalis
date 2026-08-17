@@ -4,11 +4,13 @@ import { Eye, MousePointerClick, PhoneCall, TrendingUp, Store, BarChart3, Info }
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import LoadingScreen from "@/components/shared/loader/LoadingScreen";
+//import { business_categories } from "@/hooks/useCategory";
 
 
+// Componente Principal Metrics
 const Metrics = () => {
 	const { api } = useApp();
-	const [metrics, setMetrics] = useState(null);
+	const [metrics, setMetrics] = useState("All");
 	const [isLoading, setIsLoading] = useState(true);
 	
 	const cancelledRef = useRef(false);
@@ -57,6 +59,10 @@ const Metrics = () => {
 	const iconWrapperClass = "w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 dark:bg-gray-900";
 	const iconInfoClass = "w-8 h-8 flex items-center justify-between rounded-full bg-gray-50 dark:bg-gray-900";
 	const iconClass = "w-5 h-5";
+	// Define a cor da categoria
+	//const businessCategory = business_categories.find(
+	//	categorys => categorys.name === metrics.businessCategory
+	//);
 
 	return (
 		<div className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
@@ -224,17 +230,17 @@ const Metrics = () => {
 								<Store className="w-5 h-5" /> 
 								Desempenho
 							</h2>
-							{metrics.topBusinesses.map((biz) => (
+							{metrics.topBusinesses.map((business) => (
 								<div 
-									key={biz.business_id}
+									key={business.business_id}
 									className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-300 dark:border-gray-700"
 								>
 									<div className="flex justify-between items-start mb-4">
 										<h3 className="font-bold text-gray-900 dark:text-white text-lg">
-											{biz.business_name}
+											{business.business_name}
 										</h3>
 										<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-											{biz.category}
+											{business.category}
 										</span>
 									</div>
 									<div className="grid grid-cols-3 gap-2 border-t border-gray-100 dark:border-gray-700 pt-4">
@@ -243,7 +249,7 @@ const Metrics = () => {
 												Views
 											</p>
 											<p className="font-bold text-gray-900 dark:text-white">
-												{biz.views}
+												{business.views}
 											</p>
 										</div>
 										<div className="text-center border-l border-r border-gray-100 dark:border-gray-700">
@@ -251,7 +257,7 @@ const Metrics = () => {
 												Cliques
 											</p>
 											<p className="font-bold text-gray-900 dark:text-white">
-												{biz.clicks}
+												{business.clicks}
 											</p>
 										</div>
 										<div className="text-center">
@@ -259,7 +265,7 @@ const Metrics = () => {
 												Contatos
 											</p>
 											<p className="font-bold text-gray-900 dark:text-white">
-												{biz.contacts}
+												{business.contacts}
 											</p>
 										</div>
 									</div>

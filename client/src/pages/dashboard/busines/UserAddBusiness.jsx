@@ -1,107 +1,76 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { Edit3, Home, Loader2, MapPin, Phone, Send, Smartphone, Store, Tag, Upload, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Edit3, Home, Loader2, MapPin, Phone, Send, Smartphone, Store, Tag, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-
 import { useApp } from "@/controllers/AppContext";
 import { business_categories } from "@/hooks/useCategory";
-
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://unpkg.com/leaflet/dist/images/marker-icon-2x.png",
-    iconUrl: "https://unpkg.com/leaflet/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
-});
-
-const DraggableMarker = ({ position, setPosition }) => {
-    useMapEvents({
-        click(e) { setPosition([e.latlng.lat, e.latlng.lng]); },
-    });
-    return position ? <Marker position={position} draggable={true} /> : null;
-};
+import { useUserLocation } from "@/hooks/useUserLocation";
+import { useBusinessForm } from "@/hooks/useBusinessForm";
+import { validateBusinessForm } from "@/utils/business/validation";
+import BusinessLocationMap from "@/components/business/BusinessLocationMap";
+import ImageUploader from "@/components/business/form/ImageUploader";
+import TextInput from "@/components/business/form/TextInput";
+import TextArea from "@/components/business/form/TextArea";
+import SelectInput from "@/components/business/form/SelectInput";
+import { FALLBACK_CENTER } from "@/constants/location";
+import LoadingScreen from "@/components/shared/loader/LoadingScreen";
 
 const UserAddBusiness = () => {
     const { api } = useApp();
-    const [isAdding, setIsAdding] = useState(false);
     const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(true);
+    const [isAdding, setIsAdding] = useState(false);
     const [existingBusiness, setExistingBusiness] = useState(null);
+    const [formErrors, setFormErrors] = useState(null);
 
-    const [image, setImage] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("");
-    const [phone, setPhone] = useState("");
-    const [whatsapp, setWhatsapp] = useState("");
-    const [address, setAddress] = useState("");
-    const [latitude, setLatitude] = useState(null);
-    const [longitude, setLongitude] = useState(null);
+    const {
+        values,
+        setField,
+        imagePreview,
+        setImageFile,
+        reset,
+        buildAddFormData,
+    } = useBusinessForm();
 
-    const resetForm = () => {
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-        setImage(null);
-        setName("");
-        setDescription("");
-        setCategory("");
-        setPhone("");
-        setWhatsapp("");
-        setAddress("");
-        setLatitude(null);
-        setLongitude(null);
+    const { userCoords } = useUserLocation(api, {
+        onLocated: ({ lat, lon }) => {
+            setField("latitude", lat);
+            setField("longitude", lon);
+        },
+    });
+
+    const handleField = (key) => (value) => {
+        setField(key, value);
+        setFormErrors((prev) => (prev && prev[key] ? { ...prev, [key]: undefined } : prev));
+    };
+
+    const handlePositionChange = ({ lat, lng }) => {
+        setField("latitude", lat);
+        setField("longitude", lng);
+        setFormErrors((prev) => (prev ? { ...prev, location: undefined } : prev));
     };
 
     const onSubmitHandler = async (e) => {
+        e.preventDefault();
+        const { errors, isValid } = validateBusinessForm(values);
+        setFormErrors(errors);
+        if (!isValid) {
+            toast.error(Object.values(errors).find(Boolean));
+            return;
+        }
+
+        setIsAdding(true);
         try {
-            e.preventDefault();
-            if (!name.trim()) {
-                toast.error("O nome do comércio é obrigatório");
-                return;
-            }
-            if (!category) {
-                toast.error("Selecione uma categoria");
-                return;
-            }
-            if (latitude === null || longitude === null) {
-                toast.error("Marque a localização no mapa");
-                return;
-            }
-
-            setIsAdding(true);
-
-            const business = {
-                name: name.trim(),
-                description,
-                category,
-                phone,
-                whatsapp,
-                address,
-                latitude,
-                longitude
-            };
-
-            const formData = new FormData();
-            formData.append("business", JSON.stringify(business));
-            if (image) formData.append("image", image);
-
-            const { data } = await api.post("/api/business/add", formData);
-
+            const { data } = await api.post("/api/business/add", buildAddFormData());
             if (data.success) {
                 toast.success(data.message);
-                resetForm();
-                navigate("/dashboard/list-business")
+                reset();
             } else {
                 toast.error(data.message);
-                navigate("/dashboard/list-business")
             }
+            navigate("/dashboard/list-business");
         } catch (error) {
             toast.error(error.response?.data?.message || error.message);
         } finally {
@@ -109,28 +78,10 @@ const UserAddBusiness = () => {
         }
     };
 
-    const handleCancel = (e) => {
-        e.preventDefault();
-        navigate("/dashboard/list-business")
+    const handleCancel = (cancel) => {
+        cancel.preventDefault();
+        navigate("/dashboard/list-business");
     };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setImage(file);
-        setPreviewUrl(file ? URL.createObjectURL(file) : null);
-    };
-
-    useEffect(() => {
-        return () => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl);
-        };
-    }, []);
-
-    const handleMapClick = useCallback(([lat, lng]) => {
-        setLatitude(lat);
-        setLongitude(lng);
-    }, []);
 
     useEffect(() => {
         const checkExisting = async () => {
@@ -144,52 +95,26 @@ const UserAddBusiness = () => {
             } finally {
                 setIsLoading(false);
             }
-            
         };
         checkExisting();
     }, [api]);
 
-    const mapSection = useMemo(() => (
-
-        <div>
-            <label className="block font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                Localização no Mapa
-            </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                Clique no mapa para marcar onde seu comércio está localizado
-            </p>
-            <div className="h-[300px] rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600">
-                <MapContainer
-                    center={[-23.5505, -46.6333]}
-                    zoom={13}
-                    className="w-full h-full"
-                    scrollWheelZoom={true}
-                >
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-
-                    <DraggableMarker
-                        position={latitude !== null ? [latitude, longitude] : null}
-                        setPosition={handleMapClick}
-                    />
-                </MapContainer>
-            </div>
-            {latitude !== null && (
-                <p className="text-xs text-gray-500 mt-1">
-                    Lat: {latitude.toFixed(4)}, Lng: {longitude.toFixed(4)}
-                </p>
-            )}
-        </div>
-    ), [latitude, longitude, handleMapClick])
+    const mapSection = useMemo(
+        () => (
+            <BusinessLocationMap
+                center={userCoords || FALLBACK_CENTER}
+                latitude={values.latitude}
+                longitude={values.longitude}
+                onPositionChange={handlePositionChange}
+                showCurrentLocation={true}
+                error={formErrors?.location}
+            />
+        ),
+        [userCoords, values.latitude, values.longitude, formErrors, handlePositionChange]
+    );
 
     if (isLoading) {
-        return (
-            <div className="flex-1 flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-500 dark:text-gray-400" />
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     if (existingBusiness) {
@@ -233,7 +158,7 @@ const UserAddBusiness = () => {
                 </div>
             </div>
         );
-    };
+    }
 
     return (
         <form onSubmit={onSubmitHandler} className="flex-1 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 min-h-full">
@@ -248,159 +173,80 @@ const UserAddBusiness = () => {
 
                     <div className="space-y-6">
                         {/* Imagem */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Imagem de Capa
-                            </label>
-                            <label htmlFor="image" className="block cursor-pointer">
-                                {image ? (
-                                    <div className="relative group">
-                                        <img
-                                            src={previewUrl}
-                                            alt="Preview"
-                                            className="w-full h-40 sm:h-48 object-cover rounded-xl"
-                                        />
-
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
-                                            <span className="text-white text-sm font-medium">
-                                                Clique para alterar
-                                            </span>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-40 sm:h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                        <Upload className="w-10 h-10 text-gray-400" />
-                                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                                            Foto do comércio (opcional)
-                                        </span>
-                                    </div>
-                                )}
-
-                                <input
-                                    onChange={handleImageChange}
-                                    type="file"
-                                    id="image"
-                                    accept="image/*"
-                                    className="hidden"
-                                />
-                            </label>
-                        </div>
+                        <ImageUploader preview={imagePreview} onSelect={setImageFile} />
 
                         {/* Nome */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Nome do Comércio
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Digite o nome do comércio" required
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 rounded-xl transition-all"
-                                onChange={(e) => setName(e.target.value)}
-                                value={name}
-                                title="Nome do Comércio"
-                            />
-                        </div>
+                        <TextInput
+                            label="Nome do Comércio"
+                            value={values.name}
+                            onChange={handleField("name")}
+                            placeholder="Digite o nome do comércio"
+                            required
+                            title="Nome do Comércio"
+                            error={formErrors?.name}
+                        />
 
                         {/* Descrição */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Descrição
-                            </label>
-                            <textarea
-                                placeholder="Descreva seu comércio (opcional)"
-                                rows={3}
-                                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded-xl transition-all"
-                                onChange={(e) => setDescription(e.target.value)}
-                                value={description}
-                                title="Descrição"
-                            />
-                        </div>
+                        <TextArea
+                            label="Descrição"
+                            value={values.description}
+                            onChange={handleField("description")}
+                            placeholder="Descreva seu comércio (opcional)"
+                            title="Descrição"
+                        />
 
                         {/* Categoria + WhatsApp */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Tag className="w-4 h-4" />
-                                    Categoria
-                                </label>
-                                <select
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    value={category} required
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all cursor-pointer"
-                                >
-                                    <option value="" disabled>
-                                        Selecionar
-                                    </option>
-                                    {business_categories.map((cat) => (
-                                        <option
-                                            key={cat}
-                                            value={cat}
-                                        >
-                                            {cat}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Phone className="w-4 h-4" />
-                                    WhatsApp
-                                </label>
-                                <input
-                                    type="tel"
-                                    placeholder="(11) 91234-5678"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all"
-                                    onChange={(e) => setWhatsapp(e.target.value)}
-                                    value={whatsapp}
-                                    title="Adicionar WhatsApp"
-                                />
-                            </div>
+                            <SelectInput
+                                label="Categoria"
+                                icon={Tag}
+                                value={values.category}
+                                onChange={handleField("category")}
+                                options={business_categories}
+                                error={formErrors?.category}
+                            />
+                            <TextInput
+                                label="WhatsApp"
+                                icon={Phone}
+                                type="tel"
+                                value={values.whatsapp}
+                                onChange={handleField("whatsapp")}
+                                placeholder="(11) 91234-5678"
+                                title="Adicionar WhatsApp"
+                            />
                         </div>
 
                         {/* Telefone + Endereço */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <Smartphone className="w-4 h-4" />
-                                    Telefone
-                                </label>
-                                <input
-                                    type="tel"
-                                    placeholder="(11) 3333-4444"
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all"
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    value={phone}
-                                    title="Adicionar Telefone"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                    <MapPin className="w-4 h-4" />
-                                    Endereço
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Rua, Número, Bairro..."
-                                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 rounded-xl transition-all"
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    value={address}
-                                    title="Adicionar Endereço"
-                                />
-                            </div>
+                            <TextInput
+                                label="Telefone"
+                                icon={Smartphone}
+                                type="tel"
+                                value={values.phone}
+                                onChange={handleField("phone")}
+                                placeholder="(11) 3333-4444"
+                                title="Adicionar Telefone"
+                            />
+                            <TextInput
+                                label="Endereço"
+                                icon={MapPin}
+                                value={values.address}
+                                onChange={handleField("address")}
+                                placeholder="Rua, Número, Bairro..."
+                                title="Adicionar Endereço"
+                            />
                         </div>
 
                         {/* Mapa */}
                         {mapSection}
 
-                        {/* Botão */}
+                        {/* Botões */}
                         <div className="flex flex-row justify-center items-center gap-4 pt-4 w-full">
                             <button
                                 type="submit"
                                 disabled={isAdding}
                                 className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Cadastar Comércio"
+                                title="Cadastrar Comércio"
                                 aria-label="Cadastrar Comércio"
                             >
                                 {isAdding ? (

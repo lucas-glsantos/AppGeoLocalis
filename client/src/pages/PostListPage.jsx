@@ -5,7 +5,7 @@ import { post_categories } from "@/hooks/useCategory";
 import { FileText, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 
 
-// Componente Principal (PostList)
+// Componente Principal PostList
 const PostList = () => {
     const { posts } = useApp();
     const [menu, setMenu] = useState("All");

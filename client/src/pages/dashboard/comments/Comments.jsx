@@ -1,31 +1,51 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useApp } from "@/controllers/AppContext";
 import CommentTableItem from "./CommentTableItem";
 import toast from "react-hot-toast";
 import { CheckCircle, Archive, Loader2, MessagesSquare } from "lucide-react";
 
 const Comments = () => {
-    const [comments, setComments] = useState([]);
-    const [filter, setFilter] = useState("Pendente");
-    const [loading, setLoading] = useState(true);
-
     const { api } = useApp();
+    const [comments, setComments] = useState([]);
 
-    const fetchComments = async () => {
+    const [filter, setFilter] = useState("Pendente");
+    const [isLoading, setIsLoading] = useState(true);
+    const cancelledRef = useRef(false);
+    const abortControllerRef = useRef(null);
+
+    // Função buscar Comentários (Publicados/Arquivados)
+    const fetchComments = useCallback(async (signal) => {
         try {
-            setLoading(true);
-            const { data } = await api.get("/api/comment/author");
-            data.success ? setComments(data.comments) : toast.error(data.message);
+            setIsLoading(true);
+
+            const { data } = await api.get("/api/comment/author", { signal });
+
+            if (cancelledRef.current) return;
+
+            if (data.success) {
+                setComments(data.comments)
+            } else {
+                toast.error(data.message);
+            }
         } catch (error) {
-            toast.error(error.message);
+            if (error.name === 'CanceledError') return;
+            toast.error(error.response?.data?.message || error.message);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
-    };
+    }, [api]);
 
     useEffect(() => {
-        fetchComments();
-    }, []);
+        cancelledRef.current = false;
+        abortControllerRef.current = new AbortController();
+
+        fetchComments(abortControllerRef.current.signal);
+
+        return () => {
+            cancelledRef.current = true;
+            abortControllerRef.current?.abort();
+        };
+    }, [fetchComments]);
 
     const filteredComments = comments.filter((comment) => { 
         if (filter === "Aprovado") return comment.is_approved === true; 
@@ -78,14 +98,16 @@ const Comments = () => {
                         <CheckCircle className="w-4 h-4" />
                         Aprovado
                         <span className={`px-2 py-0.5 text-xs rounded-full ${
-                            filter === "Aprovado" ? "bg-white/20" : "bg-gray-100 dark:bg-gray-700"
-                        }`}>
+                            filter === "Aprovado" 
+                                ? "bg-white/20" 
+                                : "bg-gray-100 dark:bg-gray-700"
+                            }`}>
                             {approvedCount}
                         </span>
                     </button>
                 </div>
 
-                {loading ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center py-20">
                         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                     </div>

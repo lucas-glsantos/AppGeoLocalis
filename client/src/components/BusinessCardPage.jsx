@@ -1,6 +1,7 @@
 import { MapPin, Phone, ImageIcon, Tag, MapPinned, Star, Loader2 } from "lucide-react";
 import { memo, useRef, useState, useEffect } from "react";
 import { useApp } from "../controllers/AppContext";
+import { useSessionId } from "@/hooks/useSessionId";
 
 const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 	const { id, name, category, image, whatsapp, city, state, distance } = business;
@@ -8,12 +9,7 @@ const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 	const { api } = useApp();
 	const [isLoading, setIsLoading] = useState(false);
 	const cardRef = useRef(null);
-	const sessionId = useRef(localStorage.getItem("metrics_sid") || crypto.randomUUID());
-
-	// Persistir sessionId
-	useEffect(() => {
-		localStorage.setItem("metrics_sid", sessionId.current);
-	}, []);
+	const sessionId = useSessionId();
 
 	// IntersectionObserver dispara view quando card aparece na tela
 	useEffect(() => {
@@ -24,7 +20,7 @@ const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 				if (entry.isIntersecting) {
 					api.post("/api/metrics/view", {
 						businessId: id,
-						sessionId: sessionId.current,
+						sessionId: sessionId,
 					})
 					.catch(() => {});
 					observer.disconnect(); // Dispara apenas 1 vez
@@ -116,7 +112,7 @@ const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 							onClick={() => {
 								api.post("/api/metrics/click", {
 									businessId: id,
-									sessionId: sessionId.current,
+									sessionId: sessionId,
 								})
 								.catch(() => {});
 							}}

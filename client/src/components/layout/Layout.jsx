@@ -16,7 +16,7 @@ export const dashNavItems = [
 ];
 
 const Layout = () => {
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Inicia Fechado
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Inicia Recolhida
     const handleToggle = () => setSidebarCollapsed(prev => !prev);
 
     return (

@@ -3,21 +3,22 @@ import { Loader2, List, Store, Search, X, MapPin, RefreshCcw } from "lucide-reac
 import toast from "react-hot-toast";
 
 import { useApp } from "@/controllers/AppContext";
-import LocalMap from "@/components/shared/maps/LocalMap";
 import BusinessCard from "@/components/BusinessCardPage";
 import PublicLayout from "@/components/layout/PublicLayout";
 import { business_categories } from "@/hooks/useCategory";
 import { infoToast } from "@/hooks/useInfoToast";
-
+import { BusinessMap } from "@/components/map/BusinessMap";
+import { fallbackConfig, nearbyRadiusKm, nearbyRadiusMeters } from "@/constants/business";
+import { useUserLocation } from "@/hooks/useUserLocation";
 
 
 const Nearby = () => {
   const { api, isAuthenticated } = useApp();
+  const { userCoords, error: locationError } = useUserLocation(api);
   const [businesses, setBusinesses] = useState([]);
   const [favorites, setFavorites] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [userCoords, setUserCoords] = useState(null);
 
   const [viewMode, setViewMode] = useState("lista");
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,23 +26,14 @@ const Nearby = () => {
 
   // Ao montar, Obtém IP Location + businesses próximos
   useEffect(() => {
+    if (!userCoords) return;
     const controller = new AbortController();
-    const loadData = async () => {
+    const loadBusinesses = async () => {
       try {
-        // IP location
-        const locRes = await api.get("/api/location/my-ip", { signal: controller.signal });
-        if (!locRes.data.success) throw new Error("Localização não encontrada");
-
-        const lat = Number(locRes.data.latitude ?? locRes.data.lat);
-        const lon = Number(locRes.data.longitude ?? locRes.data.lon);
-
-        if (isNaN(lat) || isNaN(lon)) throw new Error("Coordenadas inválidas");
-
-        setUserCoords([lat, lon]);
-
         // Nearby businesses
+        const [lat, lon] = userCoords;
         const bizRes = await api.get("/api/business/nearby", {
-          params: { lat, lon, radius: 10 },
+          params: { lat, lon, radius: nearbyRadiusKm },
           signal: controller.signal
         });
 
@@ -50,15 +42,22 @@ const Nearby = () => {
         }
       } catch (error) {
         console.error("Erro ao carregar comércios próximos:", error)
-        if (error.name === "AbortError") return; 
+        if (error.name === "AbortError" || error.name === "CanceledError") return; 
         setError("Não foi possível carregar comércios próximos.");
       } finally {
         setLoading(false);
       }
     };
-    loadData();
+    loadBusinesses();
     return () => controller.abort();
-  }, [api]);
+  }, [userCoords, api]);
+
+  useEffect(() => {
+    if (locationError) { 
+      setError(locationError);
+      setLoading(false);
+    }
+  }, [locationError]);
 
   // Carrega Favoritos do Usuário Logado
   useEffect(() => {
@@ -220,8 +219,11 @@ const Nearby = () => {
                   className="px-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   { (business_categories || []).map((categories) => (
-                    <option key={categories} value={categories}>
-                      {categories}
+                    <option 
+                      key={categories.id} 
+                      value={categories.name}
+                    >
+                      {categories.name}
                     </option>
                   ))}
                 </select>
@@ -250,11 +252,16 @@ const Nearby = () => {
                 // Mapa
                 <div className="h-[500px] rounded-2xl overflow-hidden shadow-md">
                   {userCoords && (
-                    <LocalMap 
-                      center={userCoords} 
+                    <BusinessMap
+                      center={userCoords || fallbackConfig}
+                      latitude={null}
+                      longitude={null}
+                      radius={nearbyRadiusMeters}
+                      showCurrentLocation={true}
                       businesses={filteredBusinesses}
-                      favorites={favorites} 
-                      onFavoriteToggle={handleFavoriteToggle} 
+                      favorites={favorites}
+                      onFavoriteToggle={handleFavoriteToggle}
+                      readOnly={true}
                     />
                   )}
                 </div>
@@ -268,3 +275,15 @@ const Nearby = () => {
 };
 
 export default Nearby;
+
+
+/*
+# Plano de refinamento proposto
+
+1. NearbyBusinesPage.jsx:44 — radius: NEARBY_RADIUS_KM (constante módulo).
+2. NearbyBusinesPage.jsx:256-264 — passar radius={NEARBY_RADIUS_KM * 1000} ao BusinessMap.
+3. NearbyBusinesPage.jsx:27-61 — tentar navigator.geolocation.getCurrentPosition com fallback para IP; manter o userCoords já usado pelo mapa (sem mudança de interface).
+4. components/map/BusinessMarkers.jsx:10 + BusinessCardPage.jsx:11 — extrair src/hooks/useSessionId.js com a lógica+fallback, únicos pontos.
+
+Nenhum desses muda o comportamento da rota/público. Quer que eu aplique os itens 1, 2 e 4 (aproveitando, sem adicionar GPS), ou incluir também o item 3 (geolocalização do navegador)?
+*/

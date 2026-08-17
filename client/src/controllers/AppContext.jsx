@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useAuth as useClerkAuth, useUser as useClerkUser } from "@clerk/clerk-react";
+import { useAuth as useClerkAuth, useUser as useClerkUser, useClerk } from "@clerk/clerk-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -20,9 +20,12 @@ export const AppProvider = ({ children }) => {
     const [posts, setPosts] = useState([]);
     const [input, setInput] = useState("");
     const getTokenRef = useRef(getToken);
+    const signOutRef = useRef(null);
+    const clerk = useClerk();
     const userLoadedRef = useRef(false);
 
 
+    // Função Buscar posts
     const fetchPosts = useCallback(async () => {
         try {
             const { data } = await axios.get("/api/post/all");
@@ -36,6 +39,10 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         getTokenRef.current = getToken;
     }, [getToken]);
+
+    useEffect(() => {
+        signOutRef.current = () => clerk.signOut();
+    }, [clerk]);
 
     useEffect(() => {
         if (interceptorId === null) {
@@ -54,6 +61,26 @@ export const AppProvider = ({ children }) => {
                 },
                 (error) => Promise.reject(error)
             );
+
+            axios.interceptors.response.use(
+                (response) => response,
+                async (error) => {
+                    if (error.response?.status === 401) {
+                        const signOut = signOutRef.current;
+
+                        if (signOut) {
+                            try { 
+                                await signOut(); 
+                            } catch {error}
+                        }
+                        
+                        if (!window.location.pathname.startsWith("/login")) {
+                            window.location.href = "/login";
+                        }
+                    }
+                    return Promise.reject(error);
+                }
+            );
         }
         return () => {
             if (interceptorId !== null) {
@@ -63,6 +90,7 @@ export const AppProvider = ({ children }) => {
         };
     }, []);
 
+    // Função Carregar e Sincronizar Usuário
     const loadUser = useCallback(async () => {
         if (!clerkLoaded || !isLoaded) return;
         if (userLoadedRef.current) return;
@@ -110,28 +138,16 @@ export const AppProvider = ({ children }) => {
         fetchPosts();
     }, [fetchPosts]);
 
-    const logout = useCallback(() => {
-        try {
-            localStorage.removeItem("userName");
-            localStorage.removeItem("userImage");
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("userId");
-            localStorage.removeItem("userSynced");
-        } catch (error) {
-            console.error("LocalStorage error:", error);
-        }
-        setUser(null);
-        setIsAuthenticated(false);
-    }, []);
-
+    
+    // Slice de Autenticação do Context
     const authValue = useMemo(() => ({
         user,
         isAuthenticated,
         isLoading,
-        logout,
         getToken,
-    }), [user, isAuthenticated, isLoading, logout, getToken]);
+    }), [user, isAuthenticated, isLoading, getToken]);
 
+    // Slice de Posts do Context
     const postsValue = useMemo(() => ({
         posts,
         setPosts,
@@ -140,14 +156,17 @@ export const AppProvider = ({ children }) => {
         fetchPosts,
     }), [posts, input, fetchPosts]);
 
+    // Instância Axios Exposta como api
     const apiValue = useMemo(() => axios, []);
 
+    // Valor Combinado do Provider
     const value = useMemo(() => ({
         ...authValue,
         ...postsValue,
         api: apiValue,
     }), [authValue, postsValue, apiValue])
 
+    // Renderização do Provider
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 

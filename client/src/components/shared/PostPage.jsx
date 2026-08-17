@@ -5,9 +5,10 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useApp } from "@/controllers/AppContext";
 import toast from "react-hot-toast";
-import { Calendar, User, MessageSquare, Send, ArrowLeft, Image as ImageIcon, Tag } from "lucide-react";
+import { Calendar, User, MessageSquare, Send, Image as ImageIcon, Tag, ChevronLeft } from "lucide-react";
 import moment from "moment";
 import { post_categories } from "@/hooks/useCategory";
+import LoadingScreen from "./loader/LoadingScreen";
 
 const PostPage = () => {
     const { id } = useParams();
@@ -130,18 +131,36 @@ const PostPage = () => {
         };
     }, [api, id, user, isAuthenticated, content, isSubmitting, navigate]);
 
-    if (loading || !data) {
+    // Botton Back to Home
+    const BackHomeBtn = ({ full }) => (
+        <button 
+            onClick={() => navigate("/")}
+            className={`flex items-center gap-2 mb-8 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] ${full ? "w-full justify-center" : ""}`}
+            aria-label="Voltar para home"
+            title="Voltar"
+        >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">
+                Voltar
+            </span>
+        </button>
+    );
+
+    if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <Navbar />
-                <div className="flex items-center justify-center h-[50vh]">
-                    {/* ADICIONAR LOADING */}
-                    <h1>SEM POST</h1>
-                </div>
+                <LoadingScreen />
                 <Footer />
             </div>
         );
-    }
+    };
+
+    if (!data) {
+        return (
+            {/* Add Página 404 ou Post indisponível */}
+        )
+    };
 
     const datePost = moment(data.created_at).format("DD/MM/YYYY");
     const isLoggedIn = isAuthenticated;
@@ -154,15 +173,8 @@ const PostPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             <Navbar />
-            
-            <article className="max-w-4xl mx-auto px-6 py-12 sm:py-16">
-                <button 
-                    onClick={() => navigate("/")}
-                    className="mt-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all inline-flex items-center gap-2 mb-8 font-medium min-h-[48px]"
-                >
-                    <ArrowLeft className="w-4 h-4" />
-                    Voltar
-                </button>
+            <article className="max-w-5xl mx-auto px-6 pb-16 sm:pb-24 m-10">
+                <BackHomeBtn />
 
                 <header className="mb-10 text-center sm:text-left">
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -282,6 +294,7 @@ const PostPage = () => {
                         <div className="space-y-4">
                             {isLoggedIn && user ? (
                                 <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                    
                                     {user.image && (
                                         <img 
                                             src={user.image} 
@@ -289,53 +302,53 @@ const PostPage = () => {
                                             className="w-10 h-10 rounded-full pointer-events-none" 
                                         />
                                     )}
-                                    <span>Comentar como: <span className="font-medium text-gray-900 dark:text-white">{user.name}</span></span>
-                                </div>
-                            ) : isLoggedIn ? (
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <textarea 
+                                        placeholder="Adicione um comentário"
+                                        value={content}
+                                        onChange={(e) => setContent(e.target.value)}
+                                        required
+                                        disabled={!isLoggedIn}
+                                        className="w-full px-4 py-4 rounded-xl shadow-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 h-15 resize-none transition-all"
+                                    />
+
+                                    {/* Botão Postar Comentário */}
                                     <button 
-                                        type="button"
-                                        onClick={() => navigate("/login")}
-                                        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                                        type="submit"
+                                        className="flex items-center gap-2 rounded-full shadow-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px]"
+                                        title={isLoggedIn ? "Comentar" : "Comentando" }
                                     >
-                                        Complete seu cadastro
-                                    </button> 
-                                    {" "}para comentar
-                                </p>
+                                        <Send className="w-4 h-4" />
+                                        <span className="hidden sm:inline">
+                                            Comentar
+                                        </span>
+                                    </button>
+                            </div>
+                                
                             ) : (
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    <button 
-                                        type="button"
-                                        onClick={() => navigate("/login")}
-                                        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                                    >
-                                        Faça login
-                                    </button> 
-                                    {" "}para comentar
-                                </p>
+                                <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                    
+                                    <User className="w-10 h-10 rounded-full pointer-events-none" />
+
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        <button 
+                                            type="button"
+                                            onClick={() => navigate("/login")}
+                                            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                                        >
+                                            Faça login
+                                        </button> 
+                                        {" "}para comentar
+                                    </p>
+
+                                    <span 
+                                    className="px-6 py-3 font-medium rounded-full shadow-lg transition-all inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 outline-none focus:ring-2 focus:ring-blue-500"
+                                    onClick={() => navigate("/login")}
+                                >
+                                    <User className="w-4 h-4" />
+                                    Faça login para comentar
+                                </span>
+                                </div>
                             )}
-                            
-                            <textarea 
-                                placeholder="Adicione um comentário..."
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                required
-                                disabled={!isLoggedIn}
-                                className="w-full px-4 py-4 rounded-lg border border-gray-300 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500 h-15 resize-none transition-all"
-                            />
-                            <button 
-                                type="submit"
-                                disabled={!isLoggedIn}
-                                className={`px-6 py-3 font-medium rounded-full shadow-lg transition-all inline-flex items-center gap-2 ${
-                                    isLoggedIn 
-                                        ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90" 
-                                        : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
-                                }`}
-                                title={isLoggedIn ? "Enviar" : "Enviando" }
-                            >
-                                <Send className="w-4 h-4" />
-                                {isLoggedIn ? "Enviar" : "Faça login para comentar"}
-                            </button>
                         </div>
                     </form>
                 </section>

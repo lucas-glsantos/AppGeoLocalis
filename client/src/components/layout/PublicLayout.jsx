@@ -10,7 +10,7 @@ export const mainNavItems = [
 ];
 
 const PublicLayout = ({ children }) => {
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Inicia Fechado
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Inicia Recolhida
     const handleToggle = () => setSidebarCollapsed(prev => !prev);
 
     return (
