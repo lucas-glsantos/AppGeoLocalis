@@ -28,10 +28,13 @@ const Comments = () => {
                 toast.error(data.message);
             }
         } catch (error) {
-            if (error.name === 'CanceledError') return;
+            if (error.name === 'CanceledError' || error.name === 'AbortError') return;
+            
             toast.error(error.response?.data?.message || error.message);
         } finally {
-            setIsLoading(false);
+            if (!cancelledRef.current) {
+                setIsLoading(false);
+            }
         }
     }, [api]);
 
@@ -64,7 +67,7 @@ const Comments = () => {
                         Comentários
                     </h1>
                     <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
-                        {comments.length} {comments.length === 0 ? 'comentário' : 'comentários'}
+                        {comments.length} {comments.length === 1 ? 'comentário' : 'comentários'}
                     </span>
                 </div>
 
@@ -115,24 +118,26 @@ const Comments = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg border border-gray-300 dark:border-gray-700">
                         <MessagesSquare className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                            Nenhum comentário {filter === "Aprovado" ? "aprovado" : "arquivado"}
+                            Nenhum comentário {filter.toLowerCase()}
                         </h3>
                         <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-6">
                             {filter === "Aprovado" 
                                 ? "Gerencie comentários, Aprove para vê-los aqui."
-                                : "Os comentários pendentes/arquivados aparecerão aqui."}
+                                : "Os comentários pendentes/arquivados aparecerão aqui."
+                            }
                         </p>
                     </div>
                 ) : (
                     <>
+                    {/* Wrapper Desktop */}
                         <div className="hidden md:block relative max-w-4xl overflow-x-auto scrollbar-hide bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-300 dark:border-gray-700 overflow-hidden">
                             <table className="w-full text-sm text-gray-500 dark:text-gray-400">
                                 <thead className="text-xs text-gray-600 dark:text-gray-300 text-left uppercase">
                                     <tr>
-                                        <th scope="col" className="px-6 py-4 justify-center">Comentário</th>
-                                        <th scope="col" className="px-6 py-4 justify-center">Data</th>
-                                        <th scope="col" className="px-6 py-4 justify-center">Status</th>
-                                        <th scope="col" className="px-6 py-4 justify-center">Ação</th>
+                                        <th scope="col" className="px-6 py-4">Comentário</th>
+                                        <th scope="col" className="px-6 py-4 text-center">Data</th>
+                                        <th scope="col" className="px-6 py-4 text-center">Status</th>
+                                        <th scope="col" className="px-6 py-4 text-center">Ação</th>
                                     </tr>
                                 </thead>
 
@@ -149,13 +154,14 @@ const Comments = () => {
                             </table>
                         </div>
 
+                        {/* Wrapper Mobile */}
                         <div className="md:hidden space-y-4">
                             {filteredComments.map((comment) => (
                                 <CommentTableItem 
                                     key={comment.id} 
                                     comment={comment} 
                                     fetchComments={fetchComments} 
-                                    isCard={true} 
+                                    isCard={true}
                                 />
                             ))}
                         </div>

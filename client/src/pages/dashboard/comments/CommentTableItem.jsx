@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useApp } from "@/controllers/AppContext";
-import { CheckCircle, Trash2, Calendar, User, MessageSquare, AlertTriangle, X, Archive, CircleFadingPlus, Loader2 } from "lucide-react";
+import { Trash2, Calendar, User, MessageSquare, AlertTriangle, X, Archive, CircleFadingPlus, Loader2, Check } from "lucide-react";
 import toast from "react-hot-toast";
-import moment from "moment";
 
 
 const CommentTableItem = ({ comment, fetchComments, isCard }) => {
@@ -11,7 +10,22 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const CommentDate = moment(created_at).format("DD/MM/YYYY");
+    const cancelledRef = useRef(false);
+
+    // Formatação de data
+    const CommentDate = new Date(created_at).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+
+    // Cleanup reference on unmount
+    useEffect(() => {
+        cancelledRef.current = false;
+        return () => {
+            cancelledRef.current = true;
+        };
+    }, []);
     
     // Função Toggle Alternar Status comentário (Arquivado <-> Aprovado)
     const toggleStatus = useCallback(async () => {
@@ -20,6 +34,8 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
 
             const { data } = await api.put(`/api/comment/toggle-status/${id}`);
 
+            if (cancelledRef.current) return;
+
             if (data.success) {
                 toast.success(data.message);
                 fetchComments();
@@ -27,42 +43,42 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
                 toast.error(data.message);
             }
         } catch (error) {
-            if (error.name !== 'CanceledError') return;
+            if (cancelledRef.current) return;
             toast.error(error.response?.data?.message || error.message);
         } finally {
-            setIsLoading(false);
+            if (!cancelledRef.current) {
+                setIsLoading(false);
+            }
         }
-    }, [api, id]);
-
-
-    useEffect(() => {
-        const controller = new AbortController();
-
-        fetchComments(controller.signal);
-
-        return () => controller.abort();
-    }, [fetchComments])
+    }, [api, id, fetchComments]);
 
     // Função Deletar Comentário
-    const deleteComment = async () => {
-        setIsLoading(true);
-
+    const deleteComment = useCallback(async () => {
         try {
+            setIsLoading(true);
+
             const { data } = await api.delete(`/api/comment/${id}`);
+
+            if (cancelledRef.current) return;
+
             if (data.success) {
                 toast.success(data.message);
-                await fetchComments();
+                fetchComments();
             } else {
                 toast.error(data.message);
             }
         } catch (error) {
+            if (cancelledRef.current) return;
             toast.error(error.response?.data?.message || error.message);
         } finally {
-            setIsLoading(false);
-            setShowDeleteModal(false);
+            if (!cancelledRef.current) {
+                setIsLoading(false);
+                setShowDeleteModal(false);
+            }
         }
-    };
+    }, [api, id, fetchComments]);
 
+    // Modal click-outside handler
     useEffect(() => {
         if (!showDeleteModal) return;
 
@@ -71,8 +87,8 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
             setShowDeleteModal(false);
         };
 
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showDeleteModal]);
 
     const getStatusComment = () => {
@@ -85,7 +101,7 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
 
     const status = getStatusComment();
     const isApproved = is_approved;
-    const statusIcon = isApproved ? Archive : CheckCircle;
+    const statusIcon = isApproved ? Archive : Check;
     const statusLabel = isApproved ? "Arquivar" : "Aprovar";
 
     const StatusIcon = statusIcon;
