@@ -100,76 +100,13 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
     };
 
     const status = getStatusComment();
-    const isApproved = is_approved;
-    const statusIcon = isApproved ? Archive : Check;
-    const statusLabel = isApproved ? "Arquivar" : "Aprovar";
-
+    const statusIcon = is_approved ? Archive : Check;
+    const statusLabel = is_approved ? "Arquivar" : "Aprovar";
     const StatusIcon = statusIcon;
-    
-    const DeleteModal = () => (
-        showDeleteModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-full bg-red-200 dark:bg-red-900/30">
-                                <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Confirmar Exclusão
-                            </h3>
-                        </div>
 
-                        <button 
-                            onClick={() => setShowDeleteModal(false)}
-                            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                            <X className="w-5 h-5 text-gray-500" />
-                        </button>
-                    </div>
-
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        Excluir este <span className="font-medium text-gray-900 dark:text-white">"Comentário"?</span> Esta ação não pode ser desfeita.
-                    </p>
-
-                    <div className="flex justify-end gap-3">
-                        <button 
-                            onClick={() => setShowDeleteModal(false)}
-                            disabled={isLoading}
-                            className="px-4 py-2 text-sm font-medium border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Cancelar
-                        </button>
-                        
-                        <button
-                            onClick={deleteComment}
-                            disabled={isLoading}
-                            className="px-4 py-2 gap-2 flex items-center text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Excluindo...
-                                </>
-                            ) : (
-                                <>
-                                    <Trash2 className="w-4 h-4" />
-                                    Excluir
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )
-    );
-
+    // Elementos Reutilizáveis
     const commentDate = (
-        <div 
-            className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400"
-            title="Data"
-        
-        >
+        <div className="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400" title="Data">
             <Calendar className="w-4 h-4" />
             {CommentDate}
         </div>
@@ -187,7 +124,7 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
         <button
             onClick={toggleStatus}
             disabled={isLoading}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isApproved
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${is_approved
                 ? "hover:bg-yellow-600 hover:text-white hover:border-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white dark:hover:border-yellow-600"
                 : "hover:bg-green-600 hover:text-white hover:border-green-600 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600"
             }`}
@@ -209,11 +146,45 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
             Excluir
         </button>
     );
+    
+// JSX do Modal Injetado Diretamente (evita re-criação de função em cada render)
+    const renderModal = () => {
+        if (!showDeleteModal) return null;
+        return (
+            <div onMouseDown={(e) => { if (e.target === e.currentTarget) setShowDeleteModal(false) }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-full bg-red-200 dark:bg-red-900/30">
+                                <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Confirmar Exclusão</h3>
+                        </div>
+                        <button onClick={() => setShowDeleteModal(false)} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <X className="w-5 h-5 text-gray-500" />
+                        </button>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                        Excluir este <span className="font-medium text-gray-900 dark:text-white">"Comentário"?</span> Esta ação não pode ser desfeita.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <button onClick={() => setShowDeleteModal(false)} disabled={isLoading} className="px-4 py-2 text-sm font-medium border border-gray-400 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
+                            Cancelar
+                        </button>
+                        <button onClick={deleteComment} disabled={isLoading} className="px-4 py-2 gap-2 flex items-center text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors disabled:opacity-50">
+                            {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Excluindo...</> : <><Trash2 className="w-4 h-4" /> Excluir</>}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
 
     if (isCard) {
         return (
             <>
-                <DeleteModal />
+                {renderModal()}
                 <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-lg border border-gray-300 dark:border-gray-700">
                     <div className="flex items-start gap-4 mb-3">
                         {user_image ? (
@@ -248,7 +219,7 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
                     {postRef}
 
                     <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center p-3 mb-4 gap-2" title="Comentário">
-                        <MessageSquare className="w-4 w-4" />
+                        <MessageSquare className="w-4 h-4" /> {/* Correção do bug w-4 w-4 aqui */}
                         {content}
                     </p>
                     
@@ -263,7 +234,7 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
 
     return (
         <>
-            <DeleteModal />
+            {renderModal()}
             <tr className="border-y border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                 <td className="px-6 py-4">
                     <div className="flex items-center gap-3 mb-2">
@@ -309,8 +280,8 @@ const CommentTableItem = ({ comment, fetchComments, isCard }) => {
                         <button
                             onClick={toggleStatus}
                             disabled={isLoading}
-                            className={`p-2 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isApproved
-                                ? "hover:bg-yellow-600 hover:text-white hover:border-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white dark:hover:border-yellow-600"
+                            className={`p-2 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${is_approved 
+                                ? "hover:bg-yellow-600 hover:text-white hover:border-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white dark:hover:border-yellow-600" 
                                 : "hover:bg-green-600 hover:text-white hover:border-green-600 dark:hover:bg-green-600 dark:hover:text-white dark:hover:border-green-600"
                             }`}
                             title={statusLabel}
