@@ -4,6 +4,7 @@ import { User } from "../models/User.js";
 import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
 import { post_categories } from "../configs/constants.js";
+import { firstZodMessage } from "../utils/friendlyErrors.js";
 
 // Schema de Validação
 const postSchema = z.object({
@@ -28,14 +29,14 @@ export const addPost = async (req, res) => {
 
 		const validation = postSchema.safeParse(rawPayload);
 		if (!validation.success) {
-			return res.status(400).json({ success: false, errors: validation.error.format() });
+			return res.status(400).json({ success: false, message: firstZodMessage(validation.error.format()) });
 		}
 
 		const { title, subTitle, description, category, is_published } = validation.data;
 		const imageFile = req.file;
 
 		if (!imageFile) {
-			return res.status(400).json({ success: false, message: "Imagem é obrigatória" });
+			return res.status(400).json({ success: false, message: "Envie uma imagem para publicar" });
 		}
 
 		const cleanDescription = sanitizeHtml(description, {
@@ -214,7 +215,7 @@ export const updatePostById = async (req, res) => {
 		// Validar com Zod partial, todos campos opcionais
 		const validation = postSchema.partial().safeParse(rawPayload);
 		if (!validation.success) {
-			return res.status(400).json({ success: false, errors: validation.error.format() });
+			return res.status(400).json({ success: false, message: firstZodMessage(validation.error.format()) });
 		}
 
 		// Monta objeto updateData apenas com campos enviados

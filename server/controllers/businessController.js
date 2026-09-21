@@ -1,12 +1,12 @@
 import { v2 as cloudinary } from "cloudinary";
 import { Business } from "../models/Business.js";
-import { User } from "../models/User.js";
 import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
 import { business_categories } from "../configs/constants.js";
+import { firstZodMessage } from "../utils/friendlyErrors.js";
 
 const businessSchema = z.object({
-    name: z.string().min(2).max(100).trim(),
+    name: z.string({ message: "Escreva o nome do comércio" }).min(3, "O nome precisa de ao menos 3 letras").max(100).trim(),
     description: z.string().max(2000).optional(),
     category: z.enum(business_categories),
     phone: z.string().max(20).optional(),
@@ -36,7 +36,7 @@ export const addBusiness = async (req, res) => {
 
         const validation = businessSchema.safeParse(rawPayload);
         if (!validation.success) {
-            return res.status(400).json({ success: false, errors: validation.error.format() });
+            return res.status(400).json({ success: false, message: firstZodMessage(validation.error.format()) });
         }
 
         const { name, description, category, phone, whatsapp, latitude, longitude, address, city, state } = validation.data;
@@ -103,7 +103,7 @@ export const getNearbyBusinesses = async (req, res) => {
     try {
         const { lat, lon, radius } = req.query;
         if (lat === undefined || lon === undefined || lat === null || lon === null || lat === "" || lon === "") {
-            return res.status(400).json({ success: false, message: "lat e lon são obrigatórios" });
+            return res.status(400).json({ success: false, message: "Não conseguimos achar sua localização. Toque em 'Usar minha localização'" });
         }
 
         const businesses = await Business.findNearby(

@@ -12,7 +12,7 @@ export const addComment = async (req, res) => {
         }
 
         if (!name || !content) {
-            return res.status(400).json({ success: false, message: "Nome e conteúdo são obrigatórios" });
+            return res.status(400).json({ success: false, message: "Escreva seu nome e seu comentário" });
         }
 
         const postData = await Posts.findById(parseInt(post));
