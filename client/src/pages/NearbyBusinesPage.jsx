@@ -10,6 +10,7 @@ import { infoToast } from "@/hooks/useInfoToast";
 import { BusinessMap } from "@/components/map/BusinessMap";
 import { fallbackConfig, nearbyRadiusKm, nearbyRadiusMeters } from "@/constants/business";
 import { useUserLocation } from "@/hooks/useUserLocation";
+import { BackHomeBtn } from "@/components/shared/Buttons";
 
 
 const Nearby = () => {
@@ -123,11 +124,14 @@ const Nearby = () => {
     { id: "mapa", label: "Mapa", icon: MapPin, count: businessCount },
   ];
 
+
   // Render
   return (
     <PublicLayout>
       <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto">
+          <BackHomeBtn />
+
           <div className="flex items-center gap-3 mb-6">
             <Store className="w-8 h-8 text-blue-500 dark:text-blue-400" />
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">

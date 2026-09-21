@@ -72,7 +72,7 @@ const UserAddBusiness = () => {
             }
             navigate("/dashboard/list-business");
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message);
+            toast.error(error.response?.data?.message || "Não foi possível salvar. Confira os campos e tente de novo");
         } finally {
             setIsAdding(false);
         }
@@ -91,7 +91,7 @@ const UserAddBusiness = () => {
                     setExistingBusiness(data.businesses[0]);
                 }
             } catch (error) {
-                toast.error(error.response?.data.message || error.message);
+                toast.error(error.response?.data?.message || "Não foi possível salvar. Confira os campos e tente de novo");
             } finally {
                 setIsLoading(false);
             }
