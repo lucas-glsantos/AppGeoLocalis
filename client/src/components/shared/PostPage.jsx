@@ -135,7 +135,7 @@ const PostPage = () => {
     const BackHomeBtn = ({ full }) => (
         <button 
             onClick={() => navigate("/")}
-            className={`flex items-center gap-2 mb-8 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px] ${full ? "w-full justify-center" : ""}`}
+            className={`flex items-center gap-2 mb-8 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-12 ${full ? "w-full justify-center" : ""}`}
             aria-label="Voltar para home"
             title="Voltar"
         >
@@ -231,7 +231,7 @@ const PostPage = () => {
                         />
                     </figure>
                 ) : (
-                    <figure className="mb-12 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 h-64 sm:h-96 flex items-center justify-center">
+                    <figure className="mb-12 rounded-2xl overflow-hidden bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 h-64 sm:h-96 flex items-center justify-center">
                         <ImageIcon className="w-16 h-16 text-gray-400" />
                     </figure>
                 )}
@@ -314,7 +314,7 @@ const PostPage = () => {
                                     {/* Botão Postar Comentário */}
                                     <button 
                                         type="submit"
-                                        className="flex items-center gap-2 rounded-full shadow-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-[48px]"
+                                        className="flex items-center gap-2 rounded-full shadow-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-3 sm:px-6 py-2.5 hover:opacity-90 transition outline-none focus:ring-2 focus:ring-blue-500 min-h-12"
                                         title={isLoggedIn ? "Comentar" : "Comentando" }
                                     >
                                         <Send className="w-4 h-4" />
@@ -325,28 +325,15 @@ const PostPage = () => {
                             </div>
                                 
                             ) : (
-                                <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                                    
-                                    <User className="w-10 h-10 rounded-full pointer-events-none" />
-
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        <button 
-                                            type="button"
-                                            onClick={() => navigate("/login")}
-                                            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                                        >
-                                            Faça login
-                                        </button> 
-                                        {" "}para comentar
-                                    </p>
-
-                                    <span 
-                                    className="px-6 py-3 font-medium rounded-full shadow-lg transition-all inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 outline-none focus:ring-2 focus:ring-blue-500"
-                                    onClick={() => navigate("/login")}
-                                >
-                                    <User className="w-4 h-4" />
-                                    Faça login para comentar
-                                </span>
+                                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                    <button 
+                                        className="px-6 py-3 font-medium rounded-full shadow-lg transition-all inline-flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 outline-none focus:ring-2 focus:ring-blue-500"
+                                        onClick={() => navigate("/login")}
+                                        title="Fazer login"
+                                    >
+                                        <User className="w-4 h-4" />
+                                        Fazer login
+                                    </button>
                                 </div>
                             )}
                         </div>

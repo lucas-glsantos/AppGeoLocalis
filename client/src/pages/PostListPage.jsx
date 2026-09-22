@@ -51,7 +51,7 @@ const PostList = () => {
                         key={category.id}
                         value={value}
                         onClick={() => setMenu(value)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all min-h-[40px] 
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all min-h-10 
                             ${
                                 menu === value
                                     ? category.color
@@ -133,7 +133,7 @@ const PostList = () => {
                                 <button
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={currentPage <= 1}
-                                    className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all min-h-11 disabled:opacity-40 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                                     aria-label="Página anterior"
                                 >
                                     <ChevronLeft className="w-4 h-4" />
@@ -145,7 +145,7 @@ const PostList = () => {
                                         <button
                                             key={p}
                                             onClick={() => setPage(p)}
-                                            className={`w-10 h-10 rounded-xl text-sm font-medium transition-all min-w-[44px] min-h-[44px] ${
+                                            className={`w-10 h-10 rounded-xl text-sm font-medium transition-all min-w-11 min-h-11 ${
                                                 p === currentPage
                                                     ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                                                     : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -161,7 +161,7 @@ const PostList = () => {
                                 <button
                                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={currentPage >= totalPages}
-                                    className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    className="flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all min-h-11 disabled:opacity-40 disabled:cursor-not-allowed bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                                     aria-label="Próxima página"
                                 >
                                     <span className="hidden sm:inline">Próximo</span>

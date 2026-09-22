@@ -53,7 +53,7 @@ const Footer = () => {
 
   return (
     <footer className="relative bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-xl">
-      <div className="absolute inset-0 bg-gradient-to-t from-gray-50/50 dark:from-gray-900/50 to-transparent -z-10" />
+      <div className="absolute inset-0 bg-linear-to-t from-gray-50/50 dark:from-gray-900/50 to-transparent -z-10" />
       <div className="flex-1 gap-4 p-4">
         <div className="grid grid-cols-1">
           <div className="flex items-center justify-left">

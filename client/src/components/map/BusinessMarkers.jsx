@@ -54,7 +54,7 @@ const BusinessMarkers = ({ businesses, favorites, onFavoriteToggle }) => {
                 icon={createIcon(business)}
             >
                 <Popup>
-                    <div className="min-w-[180px]">
+                    <div className="min-w-45">
                         <strong className="flex items-center gap-2 mt-2 text-sm text-gray-900">
                             {business.name}
                         </strong>
@@ -74,7 +74,7 @@ const BusinessMarkers = ({ businesses, favorites, onFavoriteToggle }) => {
                                 href={`https://wa.me/55${business.whatsapp.replace(/\D/g, "")}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="mt-2 block flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer !text-gray-600 dark:!text-gray-400 no-underline hover:bg-green-600 hover:!text-white hover:border-green-600 dark:hover:bg-green-600 dark:hover:!text-white dark:hover:border-green-600 transition-colors"
+                                className="mt-2 flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600! dark:text-gray-400! no-underline hover:bg-green-600 hover:text-white! hover:border-green-600 dark:hover:bg-green-600 dark:hover:text-white! dark:hover:border-green-600 transition-colors"
                                 title="WhatsApp"
                             >
                                 <Phone className="w-4 h-4" />
@@ -85,7 +85,7 @@ const BusinessMarkers = ({ businesses, favorites, onFavoriteToggle }) => {
                             <button
                                 onClick={() => handleClick(business.id)}
                                 disabled={isLoading === business.id}
-                                className="mt-2 block w-full flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-3 text-sm border border-gray-400 dark:border-gray-600 rounded-lg cursor-pointer text-gray-600 dark:text-gray-400 hover:bg-blue-600 hover:text-white hover:border-blue-600 dark:hover:bg-blue-600 dark:hover:text-white dark:hover:border-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 title={favorites?.has(business.id) ? "Favoritos" : "Favoritar"}
                             >
                                 {isLoading === business.id ? (

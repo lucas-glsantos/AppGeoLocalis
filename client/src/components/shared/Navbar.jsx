@@ -35,7 +35,7 @@ const Navbar = ({ collapsed, onToggle }) => {
 							{/* Controle do Menu (Mobile) */}
 							{isMobile && (
 								<button
-								className="p-2.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+								className="p-2.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition min-w-11 min-h-11 flex items-center justify-center"
 								aria-label={collapsed ? "Expandir" : "Recolher"}
 								title={collapsed ? "Expandir" : "Recolher"}
 								onClick={onToggle}

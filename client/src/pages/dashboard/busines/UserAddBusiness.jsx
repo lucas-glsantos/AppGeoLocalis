@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Edit3, Home, Loader2, MapPin, Phone, Send, Smartphone, Store, Tag, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -46,11 +46,11 @@ const UserAddBusiness = () => {
         setFormErrors((prev) => (prev && prev[key] ? { ...prev, [key]: undefined } : prev));
     };
 
-    const handlePositionChange = ({ lat, lng }) => {
+    const handlePositionChange = useCallback(({ lat, lng }) => {
         setField("latitude", lat);
         setField("longitude", lng);
         setFormErrors((prev) => (prev ? { ...prev, location: undefined } : prev));
-    };
+    }, [setField, setFormErrors]);
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
@@ -137,7 +137,7 @@ const UserAddBusiness = () => {
                             <button
                                 onClick={() => navigate(`/dashboard/edit-business/${existingBusiness.id}`)}
                                 disabled={isAdding}
-                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Editar Comércio"
                             >
                                 <Edit3 className="w-4 h-4" />
@@ -146,7 +146,7 @@ const UserAddBusiness = () => {
                             <button
                                 onClick={() => navigate("/")}
                                 disabled={isAdding}
-                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Voltar"
                                 aria-label="Voltar"
                             >
@@ -245,7 +245,7 @@ const UserAddBusiness = () => {
                             <button
                                 type="submit"
                                 disabled={isAdding}
-                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Cadastrar Comércio"
                                 aria-label="Cadastrar Comércio"
                             >
@@ -266,7 +266,7 @@ const UserAddBusiness = () => {
                                 type="button"
                                 onClick={handleCancel}
                                 disabled={isAdding}
-                                className="mt-5 px-6 py-3 bg-red-500 text-white dark:bg-red-600 dark:text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-red-500 text-white dark:bg-red-600 dark:text-white rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Cancelar"
                                 aria-label="Cancelar"
                             >

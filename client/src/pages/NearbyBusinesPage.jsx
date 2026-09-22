@@ -187,7 +187,7 @@ const Nearby = () => {
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px]"
+                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12"
                 title="Tentar novamente"
                 aria-label="Tentar novamente"
               >
@@ -202,7 +202,7 @@ const Nearby = () => {
             <>
               {/* Search Filter */}
               <div className="flex flex-wrap gap-2 sm:gap-3 mb-6">
-                <div className="relative flex-1 min-w-[200px]">
+                <div className="relative flex-1 min-w-50">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     value={searchQuery}
@@ -254,7 +254,7 @@ const Nearby = () => {
                 )
               ) : (
                 // Mapa
-                <div className="h-[500px] rounded-2xl overflow-hidden shadow-md">
+                <div className="h-125 rounded-2xl overflow-hidden shadow-md">
                   {userCoords && (
                     <BusinessMap
                       center={userCoords || fallbackConfig}

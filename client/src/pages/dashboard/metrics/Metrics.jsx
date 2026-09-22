@@ -90,7 +90,7 @@ const Metrics = () => {
 						</p>
 						<button
 							onClick={() => navigate("/dashboard/add-business")}
-							className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px]"
+							className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12"
 							title="Cadastar Comércio"
 							aria-label="Cadastrar Comércio"
 						>

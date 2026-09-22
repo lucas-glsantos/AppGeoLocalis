@@ -77,7 +77,7 @@ const UserListPost = () => {
                         </p>
                         <button
                             onClick={() => navigate("/dashboard/add-post")}
-                            className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px]"
+                            className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12"
                             title="Criar post"
                             aria-label="Criar post"
                         >

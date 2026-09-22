@@ -4,7 +4,7 @@ const Header = () => {
     return (
         <header className="relative overflow-hidden">
             <div className="absolute inset-0 -z-10 pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors duration-300" />
                 <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-xl will-change-transform" />
                 <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-xl will-change-transform" />            
             </div>
@@ -17,7 +17,7 @@ const Header = () => {
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 dark:text-white mb-3">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-blue-700 dark:from-blue-700 dark:to-sky-500">GeoLocalis</span>
+                        <span className="text-transparent bg-clip-text bg-linear-to-r from-sky-500 to-blue-700 dark:from-blue-700 dark:to-sky-500">GeoLocalis</span>
                     </h1>
                     <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tight text-gray-900 dark:text-white mb-6">Encontre comércios próximos a Você</h3>
 

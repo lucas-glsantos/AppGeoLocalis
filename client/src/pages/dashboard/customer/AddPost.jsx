@@ -181,7 +181,7 @@ const UserAddPost = () => {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Conteúdo
                             </label>
-                            <div className="h-64 sm:h-80 pb-16 sm:pb-10 relative [&_.ql-editor]:min-h-[200px] [&_.ql-container]:text-base bg-gray-100 dark:bg-gray-700/50">
+                            <div className="h-64 sm:h-80 pb-16 sm:pb-10 relative [&_.ql-editor]:min-h-50 [&_.ql-container]:text-base bg-gray-100 dark:bg-gray-700/50">
                                 <ReactQuill
                                     theme="snow"
                                     value={description}
@@ -195,7 +195,7 @@ const UserAddPost = () => {
 
                         {/* Categoria */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 py-2 flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 py-2 flex items-center gap-2">
                                 <Tag className="w-4 h-4" />
                                 Categoria
                             </label>
@@ -240,7 +240,7 @@ const UserAddPost = () => {
                             <button
                                 type="submit"
                                 disabled={isAdding} 
-                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Publicar"
                                 aria-label="Publicar"
                             >
@@ -261,7 +261,7 @@ const UserAddPost = () => {
                                 type="button"
                                 onClick={handleDirect}
                                 disabled={isAdding}
-                                className="mt-5 px-6 py-3 bg-red-500 text-white dark:bg-red-600 dark:text-white rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-[48px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="mt-5 px-6 py-3 bg-red-500 text-white dark:bg-red-600 dark:text-white rounded-full hover:opacity-90 transition-all flex items-center gap-2 justify-center font-medium min-h-12 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Cancelar"
                                 aria-label="Cancelar"
                             >

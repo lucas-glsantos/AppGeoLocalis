@@ -31,7 +31,7 @@ const Home = () => {
                         <div className="max-w-7xl mx-auto px-6">
                             <Link
                                 to="/nearby"
-                                className="block max-w-2xl mx-auto p-8 bg-gradient-to-r from-sky-500 to-blue-700 dark:from-blue-700 dark:to-sky-500 rounded-2xl text-white text-center shadow-lg hover:scale-[1.02] transition-transform"
+                                className="block max-w-2xl mx-auto p-8 bg-linear-to-r from-sky-500 to-blue-700 dark:from-blue-700 dark:to-sky-500 rounded-2xl text-white text-center shadow-lg hover:scale-[1.02] transition-transform"
                             >
                                 <div className="inline-flex items-center justify-center p-4 rounded-full bg-blue-700 dark:bg-blue-900/20 mb-4">
                                     <MapPin className="w-12 h-12 mx-auto" />

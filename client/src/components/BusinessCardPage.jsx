@@ -1,6 +1,6 @@
 import { MapPin, Phone, ImageIcon, Tag, MapPinned, Star, Loader2 } from "lucide-react";
 import { memo, useRef, useState, useEffect } from "react";
-import { useApp } from "../controllers/AppContext";
+import { useApp } from "@/controllers/AppContext";
 import { useSessionId } from "@/hooks/useSessionId";
 
 const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
@@ -30,7 +30,7 @@ const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 		);
 		observer.observe(el);
 		return () => observer.disconnect();
-	}, [api, id]);
+	}, [api, id, sessionId]);
 
 	const handleClick = async () => {
 		if (isLoading) return;
@@ -49,11 +49,11 @@ const BusinessCard = memo(({ business, isFavorited, onFavoriteToggle }) => {
 			className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border border-gray-300 dark:border-gray-700"
 		>
 			{/* Imagem 4:3 */}
-			<div className="aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-700">
+			<div className="aspect-4/3 overflow-hidden bg-gray-100 dark:bg-gray-700">
 				{image ? (
 					<img src={image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" title="Imagem" />
 				) : (
-					<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+					<div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
 						<ImageIcon className="w-12 h-12 text-gray-400" />
 					</div>
 				)}
