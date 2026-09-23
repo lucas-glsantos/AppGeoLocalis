@@ -9,6 +9,10 @@ import { AppProvider } from "./controllers/AppContext.jsx";
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
+if (!clerkPubKey) {
+    throw new Error("Clerk Publishable Key não encontrada. Verificar variáveis de ambiente.");
+}
+
 createRoot(document.getElementById("root")).render(
     
     <ClerkProvider publishableKey={clerkPubKey}>

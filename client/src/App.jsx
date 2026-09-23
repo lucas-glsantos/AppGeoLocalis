@@ -1,6 +1,5 @@
 import { lazy, Suspense, memo } from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
-import { Analytics } from "@vercel/analytics/react";
 import { Toaster } from "react-hot-toast";
 
 import { useApp } from "@/controllers/AppContext";
@@ -33,7 +32,6 @@ const ProtectedRoute = memo(() => {
 const App = () => {
 	return (
 		<>
-			<Analytics />
 			<Toaster position="top-center" toastOptions={{ duration: 5000 }} />
 			<Suspense fallback={<LoadingScreen />}>
 				<Routes>
